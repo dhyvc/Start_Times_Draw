@@ -72,7 +72,7 @@ def index():
 			dl_list = os.listdir("./downloads")
 			my_main.make_zip_file('./downloads', dl_list)
 		print(dl_list)
-		return send_file('downloads/StartList.zip', attachment_filename="StartList.zip")
+		return send_file('downloads/StartList.zip', download_name="StartList.zip")
 		# return send_file("./uploads/StartList.xlsx")
 		# 
 	else:
