@@ -89,8 +89,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval):
     Long = []
     Kids = []
     Undefined = []
-    courses = [Shorty, Short, Gold, Short_plus_women, Short_plus_men, Medium_youth, Medium_A, Medium_B, Medium_plus,
-               Long, Kids, Undefined]
+    courses = [Shorty, Short, Gold, Short_plus_women, Short_plus_men, Medium_youth, Medium_A, Medium_B, Medium_plus, Long, Kids, Undefined]
     shorty_count = 0
     short_count = 0
     gold_count = 0
