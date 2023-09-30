@@ -14,6 +14,7 @@
       <br/>
       <p>Please enter the following information:</p>
       <ol>
+      	<li>Sprint or Forrest Event</li>
       	<li>First Start Time</li>
       	<li>Last Start Time</li>
         <li>Start Time Window Size</li>
@@ -29,6 +30,25 @@
       <br/>
       <form action="{{ url_for('index') }}" method="POST" enctype="multipart/form-data">
         <!-- <label for="first_start">First Start:</label> -->
+        
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="event_type" id="Sprint" value="option1" checked>
+  <label class="form-check-label" for="Sprint">Sprint</label>
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="event_type" id="Forrest" value="option2">
+  <label class="form-check-label" for="Forrest">Forrest</label>
+</div>
+
+
+<div class="row">
+  <div class="col">
+    <br/>
+  </div>
+</div>
+        
+        
+        
   <div class="row justify-content-start">
     <div class="col-xxl-1 col-sm-2" >
       <label for="first_start">First Start:</label>

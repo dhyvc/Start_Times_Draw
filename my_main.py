@@ -370,6 +370,119 @@ def write_html_file_by_starting_time(input_file, working_dir):
     start_list_file.write("</table>")
     start_list_file.write("</body>\n</html>")
     start_list_file.close()
+    
+def write_vacant_slots_by_course(input_file, working_dir, first_start, last_start):
+    """This function writes out the Vacancies.xlsx file with vacant starting times."""
+    filename = working_dir + "Vacancies.csv"
+    xlfilename = working_dir + "Vacancies.xlsx"
+    
+    # Establish the category list row height according to the event type.
+    forrest_categories_row_height = 50
+    sprint_categories_row_height = 50
+    
+    course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
+    
+    category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B', 'D65B D75 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65A', 'D16A D18B H16A H18B', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+    
+    # Housekeeping code for setting the page orientation, print settings
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Vacancies"
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_A4
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToHeight = False
+    ws.print_title_rows = '1:3'
+    
+    # Define border types
+    thick_red = openpyxl.styles.Side(border_style="thick", color="FF0000")
+    thick_black = openpyxl.styles.Side(border_style="thick", color="FFFFFF")
+    thin_black = openpyxl.styles.Side(border_style="thin", color="000000")
+    thick_red_cell_border_template = openpyxl.styles.Border(bottom = thick_red, top = thick_red, left = thick_red, right = thick_red)
+    thin_black_cell_border_template = openpyxl.styles.Border(bottom = thin_black, top = thin_black, left = thin_black, right = thin_black)
+
+    # Set up the title row
+    title_cell = ws.cell(row =1, column = 1)
+    title_cell.font = openpyxl.styles.Font(size = 14)
+    title_cell.border = thick_red_cell_border_template
+    title_cell.alignment = openpyxl.styles.Alignment(horizontal = 'center')
+    ws.cell(row = 1, column = 1, value = "חלונות זינוק פנויים")
+    
+    # Set up the additional titles on the page
+    ws.cell(row = 2, column = 1).border = thin_black_cell_border_template
+    ws.cell(row = 2, column = 1).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    ws.cell(row = 2, column = 1, value = "שעת זינוק")
+    
+    # Fill in the course row
+    for index in range(len(course_fields)):
+        ws.cell(row = 2, column=index + 2, value=course_fields[index])
+        ws.cell(row = 2, column=index + 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        ws.cell(row = 2, column=index + 2).border = thin_black_cell_border_template
+    
+    # Fill in the categories row
+    for index in range(len(course_fields)):
+        ws.cell(row = 3, column=index + 2, value=category_fields[index])
+        ws.cell(row = 3, column=index + 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center', wrap_text = True)
+        ws.cell(row = 3, column=index + 2).border = thin_black_cell_border_template
+        
+    # Fix the row height to accomodate the category list
+    ws.row_dimensions[3].height = forrest_categories_row_height
+    
+    # Adjust the column width to include the labels with some spacing
+    column_letters = tuple(openpyxl.utils.get_column_letter(col_number + 1) for col_number in range(ws.max_column))
+    for column_letter in column_letters:
+        ws.column_dimensions[column_letter].bestFit = True
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=ws.max_column)
+    ws.merge_cells(start_row=2, start_column=1, end_row=3, end_column=1)
+    for column_letter in column_letters:
+        ws.column_dimensions[column_letter].width *= 1.1
+    print("first start: " + str(first_start))
+    
+    # Prepare the starting times list in the format that allows filling the start times column
+    delta = datetime.timedelta(minutes = 1)
+    first_start_in_timedelta = datetime.timedelta(hours=first_start.hour, minutes=first_start.minute, seconds=first_start.second)
+    last_start_in_timedelta = datetime.timedelta(hours=last_start.hour, minutes=last_start.minute, seconds=last_start.second)
+    difference_delta = last_start_in_timedelta - first_start_in_timedelta
+    current_time = first_start_in_timedelta
+    print("minutes =: " + str(int(difference_delta.total_seconds() //60)))
+
+    print (first_start_in_timedelta + delta)
+    
+    # Fill the start times column
+    for index in range (int(difference_delta.total_seconds() //60) +1):
+        ws.cell(row = index + 4, column = 1, value = current_time)
+        ws.cell(row = index + 4, column = 1).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        ws.cell(row = index + 4, column = 1).border = thin_black_cell_border_template
+        current_time += delta
+        
+    # Create borders for all the relevant cells in the worksheet
+    for line in range(4, len(input_file)+1):
+        for col in range(2, len(course_fields)+2):
+            ws.cell(row = line, column = col).border = thin_black_cell_border_template
+    
+    # Sort the competitor list according to the start times
+    
+    input_file.sort(key = lambda x: x[5])
+    print(input_file[0])
+    print(input_file[10])
+    print(input_file[20])
+    
+    # Loop over the starting times and the competitor lists and fill the cells that are occupied
+    
+    for index in range (int(difference_delta.total_seconds() //60) +1):
+        for competitor in input_file:
+            # Convert competitor start time to timedelta object
+            competitor_start_time = datetime.datetime.combine(datetime.date.min, competitor[5]) - datetime.datetime.min
+            if competitor[0] != "kids" and competitor[0] != "undefined":
+                if competitor_start_time == ws.cell(row = index + 4, column = 1).value:
+                    print (competitor[0], competitor[5])
+                    name = competitor[2]
+                    ws.cell(row = index + 4, column = course_fields.index(competitor[0]) + 2, value = name)
+                    ws.cell(row = index + 4, column = course_fields.index(competitor[0]) + 2).fill = openpyxl.styles.PatternFill(start_color='FF0000', end_color='FF0000', fill_type="solid")
+    
+    wb.save(xlfilename)
+
+
 
 def make_zip_file(directory, file_list):
     filename = directory + '/' + "StartList.zip"
@@ -380,26 +493,3 @@ def make_zip_file(directory, file_list):
         for f in file_list:
             zipObj2.write(directory + '/' + f)
 
-
-
-# if __name__ == '__main__':
-#     ap = argparse.ArgumentParser()
-#     ap.add_argument("-i", "--inputfile", required=True, help="Input file name")
-#     ap.add_argument("-fs", "--first_start", required=False, help="First start time")
-#     ap.add_argument("-ls", "--last_start", required=False, help="Last start time")
-#     ap.add_argument("-p", "--start_period", required=False, help="Start period size in minutes")
-#     args = vars(ap.parse_args())
-#     filepath = args['inputfile']
-#     first_start = args['first_start']
-#     last_start = args['last_start']
-#     start_period_minutes = args['start_period']
-#     first_start, last_start, start_period_minutes, error = sanity_check(first_start, last_start, start_period_minutes)
-#     if error:
-#         print("Error in the input parameters.")
-#     event_competitors = read_start_file(filepath, first_start, last_start, start_period_minutes,
-#                                         blank_slot_interval_minutes)
-#     start_file = write_start_file(event_competitors, default_working_directory)
-#     write_html_file_by_category(event_competitors, default_working_directory)
-#     write_html_file_by_starting_time(event_competitors, default_working_directory)
-    # write_pdf_file(event_competitors)
-    pass

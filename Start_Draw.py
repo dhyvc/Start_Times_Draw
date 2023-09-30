@@ -17,6 +17,11 @@ def index():
 			flash('No file part')
 			return redirect(request.url)
 
+		event_type = request.form.get("event_type")
+		if event_type is None or event_type == "":
+			flash('Missing Event Type!')
+			return redirect(request.url)
+
 		first_start = request.form.get("first_start")
 		if first_start is None or first_start == "":
 			flash('Missing First Start Time!')
@@ -38,6 +43,8 @@ def index():
 			return redirect(request.url)
 
 		event_file = request.files["event_file"]
+		et = event_type
+		print ("event type: " + event_type)
 		dt_format = "%H:%M"
 		fs = (datetime.datetime.strptime(first_start, dt_format)).time()
 		ls = datetime.datetime.strptime(last_start, dt_format).time()
@@ -61,6 +68,7 @@ def index():
 		my_main.write_start_file(comp_list, "./downloads/")
 		my_main.write_html_file_by_category(comp_list, "./downloads/")
 		my_main.write_html_file_by_starting_time(comp_list, "./downloads/")
+		my_main.write_vacant_slots_by_course(comp_list, "./downloads/", fs, ls)
 
 		if os.path.isfile("./downloads/StartList.zip"):
 			os.remove("./downloads/StartList.zip")
