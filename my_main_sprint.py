@@ -16,9 +16,10 @@ from io import StringIO, BytesIO
 kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
 shorty_categories = ['D12S', 'D14S', 'H12S', 'H14S']
 youth_categories = ['D16S', 'D18S', 'H16S', 'H18S']
-adult1_categories = ['D-OpenS', 'H-OpenS']
-adult2_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H35S', 'H40S', 'H45S', 'H50S', 'H55S', 'H60S']
-adult3_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
+adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
+adult2_categories = ['D21S']
+adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H35S', 'H40S', 'H45S', 'H50S', 'H55S', 'H60S']
+adult4_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
 
 
 

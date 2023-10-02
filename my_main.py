@@ -23,7 +23,7 @@ medium_A_categories = ['H50A', 'H55', 'H60A']
 medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
 medium_plus_categories = ['D21A', 'H18A', 'H21B', 'H40']
 long_categories = ['H21A', 'H35A']
-max_member_id = 10000
+max_member_id = 15000
 min_external_id = 20000
 blank_slot_interval_minutes = 10
 default_working_directory = './'
@@ -283,6 +283,42 @@ def write_start_file(competitors_list, working_dir):
             runner[1] = external_id
             external_id += 1
         startlist.append([runner[1], runner[2], runner[3], runner[4], runner[5], runner[7], runner[8]])
+    rows = startlist
+    # csv.writer(file_in_memory).writerow(fields)
+    # csv.writer(file_in_memory).writerows(rows)
+    # file_to_download.write(file_in_memory.getvalue().encode())
+    # file_in_memory.close()
+    # print(file_to_download)
+    with open(filename, 'w', encoding='cp1255') as csvfile:
+        # creating a csv writer object
+        csvwriter = csv.writer(csvfile)
+
+        # writing the fields
+        csvwriter.writerow(fields)
+
+        # writing the data rows
+        csvwriter.writerows(rows)
+    return filename
+
+
+def write_undefined_registrations(competitors_list, working_dir):
+    """This function writes out the startlist.csv file with starting times."""
+    filename = working_dir + "Undefined_Registrations.csv"
+    # print("Hello")
+    # print("The output file path is:", filename)
+    # file_in_memory = StringIO()
+    # file_to_download = io.BytesIO()
+    fields = ['COURSE', 'STNO', 'NAME', 'CLUB', 'CLASS NAME', 'START TIME', 'CARD NUMBER', 'PHONE']
+    startlist = []
+    external_id = min_external_id
+    competitors_list.sort(key=lambda x: x[1])
+    for runner in competitors_list:
+        if runner[1] > min_external_id:
+            runner[1] = external_id
+            external_id += 1
+        if runner[0] == "undefined":
+            print ("found an undefined runner!")
+            startlist.append([runner[0], runner[1], runner[2], runner[3], runner[4], runner[5], runner[7], runner[8]])
     rows = startlist
     # csv.writer(file_in_memory).writerow(fields)
     # csv.writer(file_in_memory).writerows(rows)
