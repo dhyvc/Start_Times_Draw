@@ -99,12 +99,13 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval):
     Adults3 = []
     Kids = []
     Undefined = []
-    courses = [Shorty, Youth, Adults1, Adults2, Adults3, Kids, Undefined]
+    courses = [Shorty, Youth, Adults1, Adults2, Adults3, Adults4, Kids, Undefined]
     shorty_count = 0
     youth_count = 0
     adults1_count = 0
     adults2_count = 0
     adults3_count = 0
+    adults4_count = 0
     kids_count = 0
     undefined_count = 0
 
@@ -151,22 +152,28 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval):
                 Youth.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
                              value, requested_start_time_col[row].value, start_time_col[row].value,
                               card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in gold_categories:
+            elif class_col[row].value in adult1_categories:
                 course = 'Adults1'
                 adults1_count += 1
                 Adults1.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
                             value, requested_start_time_col[row].value, start_time_col[row].value,
                              card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in short_plus_women_categories:
+            elif class_col[row].value in adult2_categories:
                 course = 'Adults2'
                 adults2_count += 1
                 Adults2.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                          class_col[row].value, requested_start_time_col[row].value,
                                          start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in short_plus_men_categories:
+            elif class_col[row].value in adult3_categories:
                 course = 'Adults3'
                 adults3_count += 1
                 Adults3.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                       class_col[row].value, requested_start_time_col[row].value,
+                                       start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+            elif class_col[row].value in adult4_categories:
+                course = 'Adults4'
+                adults4_count += 1
+                Adults4.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                        class_col[row].value, requested_start_time_col[row].value,
                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
 

@@ -63,12 +63,12 @@ def index():
 
 		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], event_file.filename)
 
-		comp_list = my_main.read_start_file(event_file_path, fs, ls, sw, vs)
+		comp_list = my_main.read_start_file(event_file_path, fs, ls, sw, vs, et)
 
 		my_main.write_start_file(comp_list, "./downloads/")
 		my_main.write_html_file_by_category(comp_list, "./downloads/")
 		my_main.write_html_file_by_starting_time(comp_list, "./downloads/")
-		my_main.write_vacant_slots_by_course(comp_list, "./downloads/", fs, ls)
+		my_main.write_vacant_slots_by_course(comp_list, "./downloads/", fs, ls, et)
 		my_main.write_undefined_registrations(comp_list, "./downloads/")
 
 		if os.path.isfile("./downloads/StartList.zip"):

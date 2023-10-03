@@ -62,7 +62,7 @@ def getperiods(competitors, first, last, period):
     return periods, competitors
 
 
-def read_start_file(filename, first, last, window_size, blank_slot_interval):
+def read_start_file(filename, first, last, window_size, blank_slot_interval, event_type):
     """This function reads the startlist.xlsx file with the time allocation requests and returns data structures
     containing the relevant information for processing."""
     print('The input file name is: ' + filename)
@@ -75,112 +75,210 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval):
     requested_start_time_col = sheet["E"]
     start_time_col = sheet["F"]
     card_number_col = sheet["G"]
-    phone_col = sheet["O"]
+    phone_col = sheet["O"]    
+    # Determine the course to category mapping according to event type.
+    
+    if event_type == 'option2':
+        kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
+        shorty_categories = ['D12', 'D14B', 'H12', 'H14B']
+        short_categories = ['D14A', 'D16B', 'H14A', 'H16B']
+        gold_categories = ['D65B', 'D75', 'H75', 'H80', 'H85', 'H90']
+        short_plus_women_categories = ['D21C', 'D40', 'D45', 'D50', 'D55', 'D60', 'D65A']
+        short_plus_men_categories = ['H50B', 'H60B', 'H65', 'H70']
+        medium_youth_categories = ['D16A', 'D18B', 'H16A', 'H18B']
+        medium_A_categories = ['H50A', 'H55', 'H60A']
+        medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
+        medium_plus_categories = ['D21A', 'H18A', 'H21B', 'H40']
+        long_categories = ['H21A', 'H35A']
+        Shorty = []
+        Short = []
+        Gold = []
+        Short_plus_women = []
+        Short_plus_men = []
+        Medium_youth = []
+        Medium_A = []
+        Medium_B = []
+        Medium_plus = []
+        Long = []
+        Kids = []
+        Undefined = []
+        courses = [Shorty, Short, Gold, Short_plus_women, Short_plus_men, Medium_youth, Medium_A, Medium_B, Medium_plus, Long, Kids, Undefined]
+        shorty_count = 0
+        short_count = 0
+        gold_count = 0
+        short_plus_men_count = 0
+        short_plus_women_count = 0
+        medium_plus_count = 0
+        medium_A_count = 0
+        medium_B_count = 0
+        medium_youth_count = 0
+        long_count = 0
+        kids_count = 0
+        undefined_count = 0
+    else:
+        kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
+        shorty_categories = ['D12S', 'D14S', 'H12S', 'H14S']
+        youth_categories = ['D16S', 'D18S', 'H16S', 'H18S']
+        adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
+        adult2_categories = ['D21S']
+        adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H35S', 'H40S', 'H45S', 'H50S', 'H55S', 'H60S']
+        adult4_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
+        Shorty = []
+        Youth = []
+        Adults1 = []
+        Adults2 = []
+        Adults3 = []
+        Adults4 = []
+        Kids = []
+        Undefined = []
+        courses = [Shorty, Youth, Adults1, Adults2, Adults3, Adults4, Kids, Undefined]
+        shorty_count = 0
+        youth_count = 0
+        adults1_count = 0
+        adults2_count = 0
+        adults3_count = 0
+        adults4_count = 0
+        kids_count = 0
+        undefined_count = 0
+
+        
+
     competitors = []
-    Shorty = []
-    Short = []
-    Gold = []
-    Short_plus_women = []
-    Short_plus_men = []
-    Medium_youth = []
-    Medium_A = []
-    Medium_B = []
-    Medium_plus = []
-    Long = []
-    Kids = []
-    Undefined = []
-    courses = [Shorty, Short, Gold, Short_plus_women, Short_plus_men, Medium_youth, Medium_A, Medium_B, Medium_plus, Long, Kids, Undefined]
-    shorty_count = 0
-    short_count = 0
-    gold_count = 0
-    short_plus_men_count = 0
-    short_plus_women_count = 0
-    medium_plus_count = 0
-    medium_A_count = 0
-    medium_B_count = 0
-    medium_youth_count = 0
-    long_count = 0
-    kids_count = 0
-    undefined_count = 0
     for row in range(sheet.max_row):
         if row > 0:
-            if class_col[row].value in shorty_categories:
-                course = 'Shorty'
-                shorty_count += 1
-                Shorty.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
-                              value, requested_start_time_col[row].value, start_time_col[row].value,
-                               card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in short_categories:
-                course = 'Short'
-                short_count += 1
-                Short.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
-                             value, requested_start_time_col[row].value, start_time_col[row].value,
-                              card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in gold_categories:
-                course = 'Gold'
-                gold_count += 1
-                Gold.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
-                            value, requested_start_time_col[row].value, start_time_col[row].value,
-                             card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in short_plus_women_categories:
-                course = 'Short_Plus_Women'
-                short_plus_women_count += 1
-                Short_plus_women.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                         class_col[row].value, requested_start_time_col[row].value,
-                                         start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in short_plus_men_categories:
-                course = 'Short_Plus_Men'
-                short_plus_men_count += 1
-                Short_plus_men.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                       class_col[row].value, requested_start_time_col[row].value,
-                                       start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in medium_youth_categories:
-                course = 'Medium_Youth'
-                medium_youth_count += 1
-                Medium_youth.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                     class_col[row].value, requested_start_time_col[row].value,
-                                     start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in medium_A_categories:
-                course = 'Medium_A'
-                medium_A_count += 1
-                Medium_A.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                 class_col[row].value, requested_start_time_col[row].value,
-                                 start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in medium_B_categories:
-                course = 'Medium_B'
-                medium_B_count += 1
-                Medium_B.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                 class_col[row].value, requested_start_time_col[row].value,
-                                 start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in medium_plus_categories:
-                course = 'Medium_Plus'
-                medium_plus_count += 1
-                Medium_plus.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+            if event_type == 'option2':
+                if class_col[row].value in shorty_categories:
+                    course = 'Shorty'
+                    shorty_count += 1
+                    Shorty.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
+                                value, requested_start_time_col[row].value, start_time_col[row].value,
+                                card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in short_categories:
+                    course = 'Short'
+                    short_count += 1
+                    Short.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
+                                value, requested_start_time_col[row].value, start_time_col[row].value,
+                                card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in gold_categories:
+                    course = 'Gold'
+                    gold_count += 1
+                    Gold.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
+                                value, requested_start_time_col[row].value, start_time_col[row].value,
+                                card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in short_plus_women_categories:
+                    course = 'Short_Plus_Women'
+                    short_plus_women_count += 1
+                    Short_plus_women.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                            class_col[row].value, requested_start_time_col[row].value,
+                                            start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in short_plus_men_categories:
+                    course = 'Short_Plus_Men'
+                    short_plus_men_count += 1
+                    Short_plus_men.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                        class_col[row].value, requested_start_time_col[row].value,
+                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in medium_youth_categories:
+                    course = 'Medium_Youth'
+                    medium_youth_count += 1
+                    Medium_youth.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                        class_col[row].value, requested_start_time_col[row].value,
+                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in medium_A_categories:
+                    course = 'Medium_A'
+                    medium_A_count += 1
+                    Medium_A.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                     class_col[row].value, requested_start_time_col[row].value,
                                     start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in long_categories:
-                course = 'Long'
-                long_count += 1
-                Long.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                             class_col[row].value, requested_start_time_col[row].value,
-                             start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            elif class_col[row].value in kids_categories:
-                course = 'kids'
-                kids_count += 1
-                Kids.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                             class_col[row].value, requested_start_time_col[row].value,
-                             start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in medium_B_categories:
+                    course = 'Medium_B'
+                    medium_B_count += 1
+                    Medium_B.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                    class_col[row].value, requested_start_time_col[row].value,
+                                    start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in medium_plus_categories:
+                    course = 'Medium_Plus'
+                    medium_plus_count += 1
+                    Medium_plus.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                        class_col[row].value, requested_start_time_col[row].value,
+                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in long_categories:
+                    course = 'Long'
+                    long_count += 1
+                    Long.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                class_col[row].value, requested_start_time_col[row].value,
+                                start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in kids_categories:
+                    course = 'kids'
+                    kids_count += 1
+                    Kids.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                class_col[row].value, requested_start_time_col[row].value,
+                                start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                else:
+                    course = 'undefined'
+                    undefined_count += 1
+                    Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                    class_col[row].value, requested_start_time_col[row].value,
+                                    start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                competitors.append(
+                    [course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].value,
+                    requested_start_time_col[row].value, start_time_col[row].value,
+                    card_number_col[row].value, phone_col[row].value])
+                competitors.sort(key=lambda x: x[0])
             else:
-                course = 'undefined'
-                undefined_count += 1
-                Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                  class_col[row].value, requested_start_time_col[row].value,
-                                  start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-            competitors.append(
-                [course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].value,
-                 requested_start_time_col[row].value, start_time_col[row].value,
-                 card_number_col[row].value, phone_col[row].value])
-            competitors.sort(key=lambda x: x[0])
+                if class_col[row].value in shorty_categories:
+                    course = 'Shorty'
+                    shorty_count += 1
+                    Shorty.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
+                                value, requested_start_time_col[row].value, start_time_col[row].value,
+                                card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in youth_categories:
+                    course = 'Youth'
+                    youth_count += 1
+                    Youth.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
+                                value, requested_start_time_col[row].value, start_time_col[row].value,
+                                card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in adult1_categories:
+                    course = 'Adults1'
+                    adults1_count += 1
+                    Adults1.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
+                                value, requested_start_time_col[row].value, start_time_col[row].value,
+                                card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in adult2_categories:
+                    course = 'Adults2'
+                    adults2_count += 1
+                    Adults2.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                            class_col[row].value, requested_start_time_col[row].value,
+                                            start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in adult3_categories:
+                    course = 'Adults3'
+                    adults3_count += 1
+                    Adults3.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                        class_col[row].value, requested_start_time_col[row].value,
+                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in adult4_categories:
+                    course = 'Adults4'
+                    adults4_count += 1
+                    Adults4.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                        class_col[row].value, requested_start_time_col[row].value,
+                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                elif class_col[row].value in kids_categories:
+                    course = 'kids'
+                    kids_count += 1
+                    Kids.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                class_col[row].value, requested_start_time_col[row].value,
+                                start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                else:
+                    course = 'undefined'
+                    undefined_count += 1
+                    Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                    class_col[row].value, requested_start_time_col[row].value,
+                                    start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                competitors.append(
+                    [course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].value,
+                    requested_start_time_col[row].value, start_time_col[row].value,
+                    card_number_col[row].value, phone_col[row].value])
+                competitors.sort(key=lambda x: x[0])
+
     for category in courses:
         blank_slot_counter = random.randint(1, 9)
         offset = 0
@@ -205,6 +303,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval):
         next_vacant_slot = periods[0]
         ordered_starts = []
         for p in range(len(periods)):
+            print ('category size: ' + str(len(category)))
             starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
                                                                                     next_vacant_slot,
                                                                                     blank_slot_counter,
@@ -230,10 +329,12 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     # Establish the desired earliest time slot required for a balanced allocation.
     if start_windows[current_window_index].minute - balancing_offset < 0:
         balanced_first_start_hours = start_windows[current_window_index].hour - 1
-        balanced_first_start_minutes = 60 - balancing_offset
+        balanced_first_start_minutes = max(60 - balancing_offset, 0)
     else:
         balanced_first_start_hours = start_windows[current_window_index].hour
         balanced_first_start_minutes = start_windows[current_window_index].minute - balancing_offset
+    print ("balanced first start hours: " + str(balanced_first_start_hours))
+    print ("balanced first start minutes: " + str(balanced_first_start_minutes))
     first_start_if_centered_around_requested_time = datetime.time(balanced_first_start_hours,
                                                                   balanced_first_start_minutes)
     # Pick the latest time between the next open slot and the earliest balanced time slot for this window. This will
@@ -407,18 +508,24 @@ def write_html_file_by_starting_time(input_file, working_dir):
     start_list_file.write("</body>\n</html>")
     start_list_file.close()
     
-def write_vacant_slots_by_course(input_file, working_dir, first_start, last_start):
+def write_vacant_slots_by_course(input_file, working_dir, first_start, last_start, event_type):
     """This function writes out the Vacancies.xlsx file with vacant starting times."""
     filename = working_dir + "Vacancies.csv"
     xlfilename = working_dir + "Vacancies.xlsx"
     
     # Establish the category list row height according to the event type.
     forrest_categories_row_height = 50
-    sprint_categories_row_height = 50
+    sprint_categories_row_height = 80
     
-    course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
+    if event_type == 'option2':
+        course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
     
-    category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B', 'D65B D75 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65A', 'D16A D18B H16A H18B', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B', 'D65B D75 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65A', 'D16A D18B H16A H18B', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+    else:
+        course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4']
+    
+        category_fields = ['D12S D14S H12S H14S', 'D16S D18S H16S H18S', 'H21S D-OpenS H-OpenS', 'D21S', 'D35S D40S D45S D50S H35S H40S H45S H50S H55S H60S', 'D55S D60S D65S D75S H65S H70S H75S H80S H85S H90S']
+        
     
     # Housekeeping code for setting the page orientation, print settings
     wb = openpyxl.Workbook()
@@ -462,7 +569,11 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
         ws.cell(row = 3, column=index + 2).border = thin_black_cell_border_template
         
     # Fix the row height to accomodate the category list
-    ws.row_dimensions[3].height = forrest_categories_row_height
+    if event_type == 'option2':
+        ws.row_dimensions[3].height = forrest_categories_row_height
+    else:
+        ws.row_dimensions[3].height = sprint_categories_row_height
+        
     
     # Adjust the column width to include the labels with some spacing
     column_letters = tuple(openpyxl.utils.get_column_letter(col_number + 1) for col_number in range(ws.max_column))
