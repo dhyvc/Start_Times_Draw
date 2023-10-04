@@ -120,9 +120,9 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         shorty_categories = ['D12S', 'D14S', 'H12S', 'H14S']
         youth_categories = ['D16S', 'D18S', 'H16S', 'H18S']
         adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
-        adult2_categories = ['D21S']
-        adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H35S', 'H40S', 'H45S', 'H50S', 'H55S', 'H60S']
-        adult4_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
+        adult2_categories = ['D21S', 'H35S', 'H40S', 'H45S']
+        adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H50S', 'H55S']
+        adult4_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H60S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
         Shorty = []
         Youth = []
         Adults1 = []
@@ -524,7 +524,11 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     else:
         course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4']
     
-        category_fields = ['D12S D14S H12S H14S', 'D16S D18S H16S H18S', 'H21S D-OpenS H-OpenS', 'D21S', 'D35S D40S D45S D50S H35S H40S H45S H50S H55S H60S', 'D55S D60S D65S D75S H65S H70S H75S H80S H85S H90S']
+        category_fields = ['D12S D14S H12S H14S', 'D16S D18S H16S H18S', 'H21S D-OpenS H-OpenS', 'D21S H35S H40S H45S', 'D35S D40S D45S D50S H50S H55S', 'D55S D60S D65S D75S H60S H65S H70S H75S H80S H85S H90S']
+        
+    male_color_palette = ['4e56e8', '4438ed', '6088e1','4b4cea', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '4742eb', '71bad9', '402eee']
+    femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff86d4', 'ff81c9', 'ff7cbe', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747']
+    age_scale = [12, 14, 16, 18, 21, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
         
     
     # Housekeeping code for setting the page orientation, print settings
@@ -624,8 +628,16 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
                 if competitor_start_time == ws.cell(row = index + 4, column = 1).value:
                     print (competitor[0], competitor[5])
                     name = competitor[2]
-                    ws.cell(row = index + 4, column = course_fields.index(competitor[0]) + 2, value = name)
-                    ws.cell(row = index + 4, column = course_fields.index(competitor[0]) + 2).fill = openpyxl.styles.PatternFill(start_color='FF0000', end_color='FF0000', fill_type="solid")
+                    comp_class = str(competitor[4])
+                    age = int(str(competitor[4])[1:3])
+                    index_of_color = age_scale.index(age)
+                    print ('index of color: ' + str(index_of_color))
+                    if str(competitor[4])[0] == 'D':
+                        pallette = femmale_color_palette
+                    else:
+                        pallette = male_color_palette
+                    ws.cell(row = index + 4, column = course_fields.index(competitor[0]) + 2, value = name + "[" + comp_class + "]")
+                    ws.cell(row = index + 4, column = course_fields.index(competitor[0]) + 2).fill = openpyxl.styles.PatternFill(start_color=pallette[index_of_color], end_color=pallette[index_of_color], fill_type="solid")
     
     wb.save(xlfilename)
 
