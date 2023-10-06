@@ -81,11 +81,11 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     if event_type == 'option2':
         kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
         shorty_categories = ['D12', 'D14B', 'H12', 'H14B']
-        short_categories = ['D14A', 'D16B', 'H14A', 'H16B']
+        short_categories = ['קצר', 'D14A', 'D16B', 'H14A', 'H16B']
         gold_categories = ['D65B', 'D75', 'H75', 'H80', 'H85', 'H90']
         short_plus_women_categories = ['D21C', 'D40', 'D45', 'D50', 'D55', 'D60', 'D65A']
-        short_plus_men_categories = ['H50B', 'H60B', 'H65', 'H70']
-        medium_youth_categories = ['D16A', 'D18B', 'H16A', 'H18B']
+        short_plus_men_categories = ['קצר+', 'קצר פלוס' , 'H50B', 'H60B', 'H65', 'H70']
+        medium_youth_categories = ['בינוני', 'D16A', 'D18B', 'H16A', 'H18B']
         medium_A_categories = ['H50A', 'H55', 'H60A']
         medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
         medium_plus_categories = ['D21A', 'H18A', 'H21B', 'H40']
@@ -116,9 +116,9 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         kids_count = 0
         undefined_count = 0
     else:
-        kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
+        kids_categories = ['ילדים', 'ילדים זינוק', 'ילדות זינוק', 'קצרצר']
         shorty_categories = ['D12S', 'D14S', 'H12S', 'H14S']
-        youth_categories = ['D16S', 'D18S', 'H16S', 'H18S']
+        youth_categories = ['נוער', 'D16S', 'D18S', 'H16S', 'H18S']
         adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
         adult2_categories = ['D21S', 'H35S', 'H40S', 'H45S']
         adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H50S', 'H55S']
@@ -303,7 +303,8 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         next_vacant_slot = periods[0]
         ordered_starts = []
         for p in range(len(periods)):
-            print ('category size: ' + str(len(category)))
+#            print ('course name: ' + category[0][0])
+            print ('course size: ' + str(len(category)))
             starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
                                                                                     next_vacant_slot,
                                                                                     blank_slot_counter,
@@ -451,6 +452,8 @@ def write_undefined_registrations(competitors_list, working_dir):
 
 
 def write_html_file_by_category(input_file, working_dir):
+#    starting_list_by_category = sorted(input_file, key=lambda x: x[5])
+#    starting_list_by_category = sorted(input_file, key=lambda x: x[4])
     starting_list_by_category = sorted(input_file, key=lambda x: (x[4], x[5]))
     start_list_file = open(working_dir + 'HTML_Start_Times_By_Category.html', 'w')
     start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<title> \nזמני זינוק \
@@ -526,8 +529,8 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     
         category_fields = ['D12S D14S H12S H14S', 'D16S D18S H16S H18S', 'H21S D-OpenS H-OpenS', 'D21S H35S H40S H45S', 'D35S D40S D45S D50S H50S H55S', 'D55S D60S D65S D75S H60S H65S H70S H75S H80S H85S H90S']
         
-    male_color_palette = ['4e56e8', '4438ed', '6088e1','4b4cea', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '4742eb', '71bad9', '402eee']
-    femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff86d4', 'ff81c9', 'ff7cbe', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747']
+    male_color_palette = ['4e56e8', '4438ed', '6088e1', '4b4cea', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '4742eb', '71bad9', '402eee', 'ffff00']
+    femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff86d4', 'ff81c9', 'ff7cbe', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747', 'ffff00']
     age_scale = [12, 14, 16, 18, 21, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
         
     
@@ -586,8 +589,8 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=ws.max_column)
     ws.merge_cells(start_row=2, start_column=1, end_row=3, end_column=1)
     for column_letter in column_letters:
-        ws.column_dimensions[column_letter].width *= 1.1
-    print("first start: " + str(first_start))
+        ws.column_dimensions[column_letter].width *= 1.3
+    ws.column_dimensions['A'].width /= 1.5
     
     # Prepare the starting times list in the format that allows filling the start times column
     delta = datetime.timedelta(minutes = 1)
@@ -629,8 +632,11 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
                     print (competitor[0], competitor[5])
                     name = competitor[2]
                     comp_class = str(competitor[4])
-                    age = int(str(competitor[4])[1:3])
-                    index_of_color = age_scale.index(age)
+                    try:
+                        age = int(str(competitor[4])[1:3])
+                        index_of_color = age_scale.index(age)
+                    except:
+                        index_of_color = 17
                     print ('index of color: ' + str(index_of_color))
                     if str(competitor[4])[0] == 'D':
                         pallette = femmale_color_palette
