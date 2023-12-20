@@ -610,7 +610,8 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
         current_time += delta
         
     # Create borders for all the relevant cells in the worksheet
-    for line in range(4, len(input_file)+1):
+#    for line in range(4, len(input_file)+1):
+    for line in range(4, int(difference_delta.total_seconds() //60) +5):
         for col in range(2, len(course_fields)+2):
             ws.cell(row = line, column = col).border = thin_black_cell_border_template
     
