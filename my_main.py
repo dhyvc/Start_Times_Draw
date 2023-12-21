@@ -456,7 +456,7 @@ def write_html_file_by_category(input_file, working_dir):
 #    starting_list_by_category = sorted(input_file, key=lambda x: x[4])
     starting_list_by_category = sorted(input_file, key=lambda x: (x[4], x[5]))
     start_list_file = open(working_dir + 'HTML_Start_Times_By_Category.html', 'w')
-    start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<title> \nזמני זינוק \
+    start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<meta charset="utf-8">\n<title> \nזמני זינוק \
            </title>\n</head> <body><h1><u>זמני זינוק</u></h1>\
            \n""")
     category = ''
@@ -477,7 +477,7 @@ def write_html_file_by_category(input_file, working_dir):
 def write_html_file_by_starting_time(input_file, working_dir):
     starting_list_by_category = sorted(input_file, key=lambda x: (x[5], x[4]))
     start_list_file = open(working_dir + 'HTML_Start_Times_By_Starting_Time.html', 'w')
-    start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<title> \nרשימת זינוקים \
+    start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<meta charset="utf-8">\n<title> \nרשימת זינוקים \
            </title>\n</head> <body><h1><u>רשימת זינוקים</u></h1>\
            \n""")
     time_slot = datetime.time()
