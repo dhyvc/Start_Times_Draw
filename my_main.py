@@ -282,7 +282,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     for category in courses:
         blank_slot_counter = random.randint(1, 9)
         offset = 0
-        if (category == Long) and (event_type == 'option2'):
+        if ((category == Long) or (category == Medium_youth) or (category == Medium_plus)) and (event_type == 'option2'):
             print ("long category found")
             long_category = True
         else:
@@ -331,7 +331,13 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
 
     # Determine the size of the interval required in order to balance the start time allocations around the requested time.
     number_of_runners = len(list_of_runners)
-    balancing_offset = number_of_runners // 2
+    if long_category:
+        additional_space = 2
+    else:
+        additional_space = 0
+    balancing_offset = (1 + additional_space) * number_of_runners // 2
+    if long_category:
+        print ("balancing offset = " + str(balancing_offset))
     # Establish the desired earliest time slot required for a balanced allocation.
     if start_windows[current_window_index].minute - balancing_offset < 0:
         balanced_first_start_hours = start_windows[current_window_index].hour - 1
@@ -343,9 +349,13 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     print ("balanced first start minutes: " + str(balanced_first_start_minutes))
     first_start_if_centered_around_requested_time = datetime.time(balanced_first_start_hours,
                                                                   balanced_first_start_minutes)
+    print("first start if balanced: " + str(first_start_if_centered_around_requested_time))
     # Pick the latest time between the next open slot and the earliest balanced time slot for this window. This will
     # serve as the next available time slot.
-    next_open_slot = max(first_open_slot, first_start_if_centered_around_requested_time)
+    if number_of_runners > 0:
+        next_open_slot = max(first_open_slot, first_start_if_centered_around_requested_time)
+    else:
+        next_open_slot = first_open_slot
     # Assign each runner a random number.
     for runner in list_of_runners:
         runner.append(random.SystemRandom().random())
@@ -364,15 +374,16 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     for runner in list_of_runners:
         if blank_slot_counter % blank_slot_interval == 0:
             offset += 1
-        if long_category:
-            offset += 2
             # next_open_slot = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
             #                   datetime.timedelta(minutes=1)).time()
         runner[5] = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
-                     datetime.timedelta(minutes=list_of_runners.index(runner) + offset)).time()
+                     datetime.timedelta(minutes=list_of_runners.index(runner) * (1 + additional_space) + offset)).time()
         blank_slot_counter += 1
+        if long_category:
+            print ("***************************")
+            print ("next time: " + str (runner[5]))
     next_open_slot = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
-                      datetime.timedelta(minutes=len(list_of_runners) + offset)).time()
+                      datetime.timedelta(minutes=len(list_of_runners) * (1 + additional_space) + offset)).time()
     return list_of_runners, next_open_slot, blank_slot_counter, offset
 
 
