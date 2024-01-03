@@ -282,11 +282,14 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     for category in courses:
         blank_slot_counter = random.randint(1, 9)
         offset = 0
-        if ((category == Long) or (category == Medium_youth) or (category == Medium_plus)) and (event_type == 'option2'):
+        if (category == Long) and (event_type == 'option2'):
             print ("long category found")
-            long_category = True
+            long_category, medium_category = True, False
+        elif ((category == Medium_youth) or (category == Medium_plus)) and (event_type == 'option2'):
+            print ("medium category found")
+            long_category, medium_category = False, True
         else:
-            long_category = False
+            long_category, medium_category = False, False
         category.sort(key=lambda x: x[5])
         periods, competitors = getperiods(competitors, first, last, window_size)
         runners_per_period = []
@@ -313,7 +316,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
             starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
                                                                                     next_vacant_slot,
                                                                                     blank_slot_counter,
-                                                                                    blank_slot_interval, offset, long_category)
+                                                                                    blank_slot_interval, offset, long_category, medium_category)
             ordered_starts.append(starts)
         category.sort(key=lambda x: x[5])
     ordered_competitors = []
@@ -324,7 +327,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
 
 
 def draw_start_times(current_window_index, start_windows, list_of_runners, first_open_slot, blank_slot_counter,
-                     blank_slot_interval, offset, long_category):
+                     blank_slot_interval, offset, long_category, medium_category):
     """This function accepts a list of runners, assigns each one a random number, sorts the runners according to
     the random number and assigns them a starting slot based on their order. Periodic vacancies will be inserted in
     order to support some flexibility for the organizers during the event. The long category gets special spacing of two minutes in forest events."""
@@ -333,6 +336,8 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     number_of_runners = len(list_of_runners)
     if long_category:
         additional_space = 2
+    elif medium_category:
+        additional_space = 1
     else:
         additional_space = 0
     balancing_offset = (1 + additional_space) * number_of_runners // 2
