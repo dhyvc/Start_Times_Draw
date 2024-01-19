@@ -285,7 +285,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         if (category == Long) and (event_type == 'option2'):
             print ("long category found")
             long_category, medium_category = True, False
-        elif ((category == Medium_youth) or (category == Medium_plus)) and (event_type == 'option2'):
+        elif ((category == Medium_youth) or (category == Medium_plus) or (category == Short) or (category == Shorty)) and (event_type == 'option2'):
             print ("medium category found")
             long_category, medium_category = False, True
         else:
