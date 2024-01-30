@@ -12,6 +12,7 @@ import os
 # from fpdf import FPDF
 from zipfile import ZipFile
 from io import StringIO, BytesIO
+from flask import render_template
 
 kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
 shorty_categories = ['D12', 'D14B', 'H12', 'H14B']
@@ -283,10 +284,10 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     for category in courses:
         blank_slot_counter = random.randint(1, 9)
         offset = 0
-        if (category == Long) and (event_type == 'option2'):
+        if (event_type == 'option2') and (category == Long):
             print ("long category found")
             long_category, medium_category = True, False
-        elif ((category == Medium_youth) or (category == Medium_plus) or (category == Short) or (category == Shorty)) and (event_type == 'option2'):
+        elif  (event_type == 'option2') and ((category == Medium_youth) or (category == Medium_plus) or (category == Short) or (category == Shorty)):
             print ("medium category found")
             long_category, medium_category = False, True
         else:
@@ -479,6 +480,12 @@ def write_undefined_registrations(competitors_list, working_dir):
 #         pdf.cell(40, x - 30, text)
 #     pdf.output('tuto1.pdf', 'F')
 
+
+def write_html_file_for_website(input_file, working_dir):
+    starting_list_by_category = sorted(input_file, key=lambda x: (x[4], x[5]))
+    start_list_file = open(working_dir + 'startlist_web.html','w',encoding="utf-8")
+    start_list_file.write(render_template('startlist.html', competitors=starting_list_by_category))
+    start_list_file.close()
 
 def write_html_file_by_category(input_file, working_dir):
 #    starting_list_by_category = sorted(input_file, key=lambda x: x[5])
