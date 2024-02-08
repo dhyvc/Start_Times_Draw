@@ -8,6 +8,7 @@ import openpyxl
 import datetime
 import random
 import csv
+import os
 # from fpdf import FPDF
 from zipfile import ZipFile
 from io import StringIO, BytesIO
@@ -478,7 +479,13 @@ def write_html_file_by_category(input_file, working_dir):
 #    starting_list_by_category = sorted(input_file, key=lambda x: x[5])
 #    starting_list_by_category = sorted(input_file, key=lambda x: x[4])
     starting_list_by_category = sorted(input_file, key=lambda x: (x[4], x[5]))
-    start_list_file = open(working_dir + 'HTML_Start_Times_By_Category.html', 'w')
+    start_list_file = open(working_dir + 'HTML_Start_Times_By_Category.html', 'w', encoding='utf8')
+    
+    if not os.path.exists(working_dir):
+    # if the folder directory is not present
+    # then create it.
+        os.makedirs(working_dir )
+
     start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<meta charset="utf-8">\n<title> \nזמני זינוק \
            </title>\n</head> <body><h1><u>זמני זינוק</u></h1>\
            \n""")
@@ -490,8 +497,8 @@ def write_html_file_by_category(input_file, working_dir):
                 start_list_file.write("</table>")
             category = runner[4]
             table_started = True
-            start_list_file.write("<H1>%s</H1>\n<table><tr><th>שעה</th><th></th><th>שם</th></tr>\n" % category)
-        start_list_file.write("<tr><td>%s</td><td></td><td>%s</td></tr>\n" % (runner[5], runner[2]))
+            start_list_file.write("<H1>%s</H1>\n<table><tr><th align='center'>שעה</th><th align='center'>מספר חבר</th><th align='center'>שם</th><th></th><th align='center'>מועדון</th><th></th><th align='center'>SI</th></tr>\n" % category)
+        start_list_file.write("<tr><td>%s</td><td align='center'>%s</td><td style='color: blue'><b>%s</b></td><td></td><td>%s</td><td></td><td align='center' style='color: blue'>%s</td></tr>\n" % (runner[5], runner[1], runner[2], runner[3], runner[7]))
     start_list_file.write("</table>")
     start_list_file.write("</body>\n</html>")
     start_list_file.close()
@@ -499,7 +506,7 @@ def write_html_file_by_category(input_file, working_dir):
 
 def write_html_file_by_starting_time(input_file, working_dir):
     starting_list_by_category = sorted(input_file, key=lambda x: (x[5], x[4]))
-    start_list_file = open(working_dir + 'HTML_Start_Times_By_Starting_Time.html', 'w')
+    start_list_file = open(working_dir + 'HTML_Start_Times_By_Starting_Time.html', 'w', encoding='utf8')
     start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<meta charset="utf-8">\n<title> \nרשימת זינוקים \
            </title>\n</head> <body><h1><u>רשימת זינוקים</u></h1>\
            \n""")
