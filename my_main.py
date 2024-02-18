@@ -400,7 +400,7 @@ def write_start_file(competitors_list, working_dir):
     # print("The output file path is:", filename)
     # file_in_memory = StringIO()
     # file_to_download = io.BytesIO()
-    fields = ['STNO', 'NAME', 'CLUB', 'CLASS NAME', 'START TIME', 'CARD NUMBER', 'PHONE']
+    fields = ['STNO', 'NAME', 'CLUB', 'CLASS NAME', 'START TIME', 'CARD NUMBER', 'PHONE', 'CARD MEMO']
     startlist = []
     external_id = min_external_id
     competitors_list.sort(key=lambda x: x[1])
@@ -408,7 +408,12 @@ def write_start_file(competitors_list, working_dir):
         if runner[1] > min_external_id:
             runner[1] = external_id
             external_id += 1
-        startlist.append([runner[1], runner[2], runner[3], runner[4], runner[5], runner[7], runner[8]])
+    # Add a "rental" tag to runners who have no SI assigned to them during registration.
+        if runner[7] is None or runner[7] < 100000:
+            rental = "rental"
+        else:
+            rental = ""
+        startlist.append([runner[1], runner[2], runner[3], runner[4], runner[5], runner[7], runner[8], rental])
     rows = startlist
     # csv.writer(file_in_memory).writerow(fields)
     # csv.writer(file_in_memory).writerows(rows)
