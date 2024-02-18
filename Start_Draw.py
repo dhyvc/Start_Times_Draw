@@ -67,6 +67,7 @@ def index():
 
 		my_main.write_start_file(comp_list, "./downloads/")
 		my_main.write_undefined_registrations(comp_list, "./downloads/")
+		my_main.write_html_file_for_website(comp_list, "./downloads/")
 		my_main.write_html_file_by_category(comp_list, "./downloads/")
 		my_main.write_html_file_by_starting_time(comp_list, "./downloads/")
 		my_main.write_vacant_slots_by_course(comp_list, "./downloads/", fs, ls, et)
