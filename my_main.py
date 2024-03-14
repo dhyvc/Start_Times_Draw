@@ -14,7 +14,7 @@ from zipfile import ZipFile
 from io import StringIO, BytesIO
 from flask import render_template
 
-kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
+kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר', 'ילדים כינוס', 'ילדות כינוס']
 shorty_categories = ['D12', 'D14B', 'H12', 'H14B']
 short_categories = ['D14A', 'D16B', 'H14A', 'H16B']
 gold_categories = ['D65B', 'D75', 'H75', 'H80', 'H85', 'H90']
@@ -81,7 +81,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     # Determine the course to category mapping according to event type.
     
     if event_type == 'option2':
-        kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר']
+        kids_categories = ['ילדים זינוק', 'ילדות זינוק', 'קצרצר', 'ילדים כינוס', 'ילדות כינוס']
         shorty_categories = ['D12', 'D14B', 'H12', 'H14B']
         short_categories = ['קצר', 'D14A', 'D16B', 'H14A', 'H16B']
         gold_categories = ['D65B', 'D75', 'H75', 'H80', 'H85', 'H90']
