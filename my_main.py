@@ -118,10 +118,10 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         kids_count = 0
         undefined_count = 0
     else:
-        kids_categories = ['ילדים', 'ילדים זינוק', 'ילדות זינוק', 'קצרצר']
+        kids_categories = ['ילדים', 'ילדים זינוק', 'ילדות זינוק', 'קצרצר', 'ילדים לא תחר', 'ילדות לא תחר']
         shorty_categories = ['D12S', 'D14S', 'H12S', 'H14S']
         youth_categories = ['נוער', 'D16S', 'D18S', 'H16S', 'H18S']
-        adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
+        adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS', 'קצר']
         adult2_categories = ['D21S', 'H35S', 'H40S', 'H45S']
         adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H50S', 'H55S']
         adult4_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H60S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
@@ -421,6 +421,11 @@ def write_start_file(competitors_list, working_dir):
     # file_to_download.write(file_in_memory.getvalue().encode())
     # file_in_memory.close()
     # print(file_to_download)
+    if not os.path.exists(working_dir):
+# if the folder directory is not present
+# then create it.
+        os.makedirs(working_dir )
+
     with open(filename, 'w', encoding='cp1255') as csvfile:
         # creating a csv writer object
         csvwriter = csv.writer(csvfile)
@@ -488,10 +493,22 @@ def write_html_file_for_website(input_file, working_dir):
     start_list_file.close()
 
 def write_html_file_by_category(input_file, working_dir):
+    external_id = min_external_id
+    input_file.sort(key=lambda x: x[1])
+    for runner in input_file:
+        print ("old runner id: ", runner[1])
+        if runner[1] > max_member_id:
+            print ("old runner id: ", runner[1])
+            runner[1] = external_id
+            print ("new runner id: ", runner[1])
+            external_id += 1
+    
 #    starting_list_by_category = sorted(input_file, key=lambda x: x[5])
 #    starting_list_by_category = sorted(input_file, key=lambda x: x[4])
     starting_list_by_category = sorted(input_file, key=lambda x: (x[4], x[5]))
     start_list_file = open(working_dir + 'HTML_Start_Times_By_Category.html', 'w', encoding='utf8')
+    
+
     
     if not os.path.exists(working_dir):
     # if the folder directory is not present
