@@ -121,7 +121,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         kids_categories = ['ילדים', 'ילדים זינוק', 'ילדות זינוק', 'קצרצר', 'ילדים לא תחר', 'ילדות לא תחר']
         shorty_categories = ['D12S', 'D14S', 'H12S', 'H14S']
         youth_categories = ['נוער', 'D16S', 'D18S', 'H16S', 'H18S']
-        adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS', 'קצר']
+        adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
         adult2_categories = ['D21S', 'H35S', 'H40S', 'H45S']
         adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H50S', 'H55S']
         adult4_categories = ['D55S', 'D60S', 'D65S', 'D75S', 'H60S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
