@@ -496,7 +496,7 @@ def write_html_file_by_category(input_file, working_dir):
     external_id = min_external_id
     input_file.sort(key=lambda x: x[1])
     for runner in input_file:
-#        print ("old runner id: ", runner[1])
+        print ("old runner id: ", runner[1])
         if runner[1] > max_member_id:
             print ("old runner id: ", runner[1])
             runner[1] = external_id
@@ -651,26 +651,6 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
         ws.column_dimensions[column_letter].width *= 1.3
     ws.column_dimensions['A'].width /= 1.5
     
-    # Sort the competitor list according to the start times
-    
-    input_file.sort(key = lambda x: x[5])
-    print(input_file[0])
-    print(input_file[10])
-    print(input_file[20])
-    print("last start time: ", input_file[-1][5])
-    print("last start time type: ", type(input_file[-1][5]))
-    last_start_time = input_file[-1][5]
-    last_assigned_start_in_timedelta = datetime.datetime.combine(datetime.datetime.min, last_start_time) - datetime.datetime.min
-    print("last assigned time in timedelta: ", last_assigned_start_in_timedelta)
-    print("last start time in delta type: ", type(last_assigned_start_in_timedelta))
-    print("first start: ", first_start)
-    print("first start time type: ", type(first_start))
-    first_assigned_start_in_timedelta = datetime.datetime.combine(datetime.datetime.min, first_start) - datetime.datetime.min
-    print("first start in delta type: ", first_assigned_start_in_timedelta)
-    print("first start time in delta type: ", type(first_assigned_start_in_timedelta))
-    used_time_slots_in_minutes = (last_assigned_start_in_timedelta - first_assigned_start_in_timedelta).total_seconds() / 60
-    print("used time slots: ", used_time_slots_in_minutes)
-    
     # Prepare the starting times list in the format that allows filling the start times column
     delta = datetime.timedelta(minutes = 1)
     first_start_in_timedelta = datetime.timedelta(hours=first_start.hour, minutes=first_start.minute, seconds=first_start.second)
@@ -681,14 +661,8 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
 
     print (first_start_in_timedelta + delta)
     
-    if used_time_slots_in_minutes < 120:
-        number_of_rows = 120
-    else:
-        number_of_rows = used_time_slots_in_minutes
-    
     # Fill the start times column
-    for index in range (int(number_of_rows) +1):
-#    for index in range (int(difference_delta.total_seconds() //60) +1):
+    for index in range (int(difference_delta.total_seconds() //60) +1):
         ws.cell(row = index + 4, column = 1, value = current_time)
         ws.cell(row = index + 4, column = 1).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
         ws.cell(row = index + 4, column = 1).border = thin_black_cell_border_template
@@ -696,13 +670,20 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
         
     # Create borders for all the relevant cells in the worksheet
 #    for line in range(4, len(input_file)+1):
-    for line in range(4, int(number_of_rows) +5):
+    for line in range(4, int(difference_delta.total_seconds() //60) +5):
         for col in range(2, len(course_fields)+2):
             ws.cell(row = line, column = col).border = thin_black_cell_border_template
     
+    # Sort the competitor list according to the start times
+    
+    input_file.sort(key = lambda x: x[5])
+    print(input_file[0])
+    print(input_file[10])
+    print(input_file[20])
+    
     # Loop over the starting times and the competitor lists and fill the cells that are occupied
     
-    for index in range (int(number_of_rows) +1):
+    for index in range (int(difference_delta.total_seconds() //60) +1):
         for competitor in input_file:
             # Convert competitor start time to timedelta object
             competitor_start_time = datetime.datetime.combine(datetime.date.min, competitor[5]) - datetime.datetime.min
