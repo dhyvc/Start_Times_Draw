@@ -216,6 +216,8 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                                 class_col[row].value, requested_start_time_col[row].value,
                                 start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
                 else:
+                    if not class_col[row].value:
+                        class_col[row].value = "Missing class"
                     course = 'undefined'
                     undefined_count += 1
                     Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
@@ -455,6 +457,7 @@ def write_undefined_registrations(competitors_list, working_dir):
             external_id += 1
         if runner[0] == "undefined":
             print ("found an undefined runner!")
+            print ("Name:", runner[2])
             startlist.append([runner[0], runner[1], runner[2], runner[3], runner[4], runner[5], runner[7], runner[8]])
     rows = startlist
     # csv.writer(file_in_memory).writerow(fields)
@@ -582,13 +585,13 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     if event_type == 'option2':
         course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
     
-        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D65B D75 H75 H80 H85 H90', 'H50B H60B H65 H70 +קצר', 'D21C D40 D45 D50 D55 D60 D65A', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D65B D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70 +קצר', 'D21C D40 D45 D50 D55 D60 D65A', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
     else:
         course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4']
     
         category_fields = ['D12S D14S H12S H14S', 'D16S D18S H16S H18S נוער', 'H21S D-OpenS H-OpenS', 'D21S H35S H40S H45S', 'D35S D40S D45S D50S H50S H55S', 'D55S D60S D65S D75S H60S H65S H70S H75S H80S H85S H90S']
         
-    male_color_palette = ['4e56e8', '4438ed', '6088e1', '4b4cea', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '4742eb', '71bad9', '402eee', 'ffff00']
+    male_color_palette = ['dd6727', 'd78644', '6088e1', 'd7ebf2', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '9fcddc', '09679b', '402eee', 'ffff00']
     femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff86d4', 'ff81c9', 'ff7cbe', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747', 'ffff00']
     age_scale = [12, 14, 16, 18, 21, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
         
