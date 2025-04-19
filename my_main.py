@@ -77,7 +77,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     requested_start_time_col = sheet["E"]
     start_time_col = sheet["F"]
     card_number_col = sheet["G"]
-    phone_col = sheet["O"]    
+    phone_col = sheet["P"]    
     # Determine the course to category mapping according to event type.
     
     if event_type == 'option2':
@@ -272,6 +272,9 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                                 class_col[row].value, requested_start_time_col[row].value,
                                 start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
                 else:
+                    if not class_col[row].value:
+                        class_col[row].value = "Missing class"
+                        print ("Bingooooooooooooooooooooooooooooo")
                     course = 'undefined'
                     undefined_count += 1
                     Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
