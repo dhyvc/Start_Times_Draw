@@ -28,9 +28,6 @@ long_categories = ['H21A', 'H35A']
 max_member_id = 15000
 min_external_id = 20000
 blank_slot_interval_minutes = 10
-# consecutive_club_value = 1
-# consecutive_category_value = 10
-# optimization_iterations = 50
 default_working_directory = './'
 
 
@@ -49,11 +46,7 @@ def sanity_check(first, last, period):
 
 
 def getperiods(competitors, first, last, period):
-    """This function builds a list of starting slots based on the requested
-    times, the window size, first start and last start. The function
-    returns two lists: the starting slots and the competitors list."""
     periods = []
-    # Sanity checks for requested starting times and starting period.
     for competitor in competitors:
         if competitor[5] < first:
             competitor[5] = first
@@ -62,40 +55,16 @@ def getperiods(competitors, first, last, period):
     current_time = first
     minutes = current_time.minute
     hours = current_time.hour
-    # Cycle through the possibles starting windows using the window size.
     while current_time <= last:
-        # Add the current slot to the list.
         periods.append(current_time)
-        # Update the next slot, advancing the hour as needed.
         if minutes + period > 59:
             hours += 1
         minutes = (minutes + period) % 60
         current_time = current_time.replace(hour=hours, minute=minutes)
     return periods, competitors
 
-def quality_of_draw(runner_list, consecutive_category_value, consecutive_club_value):
-    """This function calculates a score for a given draw based on consecutive
-    runners from the same category and/or same club"""
-    list_length = len(runner_list)
-    print("BEGIN SCORING........")
-    print("cat value:", consecutive_category_value)
-    print("club value:", consecutive_club_value)
-    if len(runner_list) > 0:
-        print("category is:", runner_list[0][4])
-        print("club is:", runner_list[0][3])
-    print(runner_list)
-    score = 0
-    for i in range(list_length-1):
-        if runner_list[i][3] == runner_list[i+1][3]:
-            score += consecutive_club_value
-            print("found consecutive club on indexes: ", i, i+1)
-        if runner_list[i][4] == runner_list[i+1][4]:
-            score += consecutive_category_value
-            print("found consecutive categories on indexes: ", i, i+1)
-    return score
 
-
-def read_start_file(filename, first, last, window_size, blank_slot_interval, event_type, optimization_iterations, consecutive_club_value, consecutive_category_value):
+def read_start_file(filename, first, last, window_size, blank_slot_interval, event_type):
     """This function reads the startlist.xlsx file with the time allocation requests and returns data structures
     containing the relevant information for processing."""
     print('The input file name is: ' + filename)
@@ -179,9 +148,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
     competitors = []
     for row in range(sheet.max_row):
         if row > 0:
-            # For forest events.
             if event_type == 'option2':
-                # Add the curren row data to the relevant course list.
                 if class_col[row].value in shorty_categories:
                     course = 'Shorty'
                     shorty_count += 1
@@ -249,7 +216,6 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                                 class_col[row].value, requested_start_time_col[row].value,
                                 start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
                 else:
-                    # Check for missing class for competitor and add such competitor to the undefined list.
                     if not class_col[row].value:
                         class_col[row].value = "Missing class"
                     course = 'undefined'
@@ -257,17 +223,13 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                     Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                     class_col[row].value, requested_start_time_col[row].value,
                                     start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-                # Add the competitor to the competitors list.
                 competitors.append(
                     [course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].value,
                     requested_start_time_col[row].value, start_time_col[row].value,
                     card_number_col[row].value, phone_col[row].value])
-                # Sort the competitors list according to the course.
                 competitors.sort(key=lambda x: x[0])
             else:
-                # For sprint events.
                 if class_col[row].value in shorty_categories:
-                    # Add the row data to the relevant course list.
                     course = 'Shorty'
                     shorty_count += 1
                     Shorty.append([course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].
@@ -310,42 +272,33 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                                 class_col[row].value, requested_start_time_col[row].value,
                                 start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
                 else:
-                    # Check for missing class for competitor and add such competitor to the undefined list.
                     if not class_col[row].value:
                         class_col[row].value = "Missing class"
+                        print ("Bingooooooooooooooooooooooooooooo")
                     course = 'undefined'
                     undefined_count += 1
                     Undefined.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                     class_col[row].value, requested_start_time_col[row].value,
                                     start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-                # Add the competitor to the competitors list.
                 competitors.append(
                     [course, stno_col[row].value, name_col[row].value, club_col[row].value, class_col[row].value,
                     requested_start_time_col[row].value, start_time_col[row].value,
                     card_number_col[row].value, phone_col[row].value])
-                # Sort the competitors list according to the course.
                 competitors.sort(key=lambda x: x[0])
 
     for category in courses:
-        # Establish the first blank slot for each course.
         blank_slot_counter = random.randint(1, 9)
-        # Support bigger spacing between starts in the longer courses of a forest event.
         offset = 0
-        # If the current course is long, then mark it as both long and medium so there will be two minutes added between starts.
         if (event_type == 'option2') and (category == Long):
             print ("long category found")
             long_category, medium_category = True, False
-        # If the course is either medium youth, short, or medium plus, mark it as meduim category only for only 1 min added between starts.
         elif  (event_type == 'option2') and ((category == Medium_youth) or (category == Medium_plus) or (category == Short) or (category == Shorty)):
             print ("medium category found")
             long_category, medium_category = False, True
         else:
             long_category, medium_category = False, False
-        # Sort the course according to the requested starting time parameter.
         category.sort(key=lambda x: x[5])
-        # Retrieve both the starting slots list and the competitors list from the file downloaded from the ISOA site.
         periods, competitors = getperiods(competitors, first, last, window_size)
-        # Assign runners to each time slot for the current course according to their requested starting time.
         runners_per_period = []
         for item in periods:
             runners_per_period.append([])
@@ -362,17 +315,15 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                     break
             else:
                 print("Error: Missing starting time.")
-        # Establish the next possible starting time for the current course.
         next_vacant_slot = periods[0]
         ordered_starts = []
-        # Cycle through the starting slots and randomly draw the starting order for each starting slot.
         for p in range(len(periods)):
 #            print ('course name: ' + category[0][0])
             print ('course size: ' + str(len(category)))
             starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
                                                                                     next_vacant_slot,
                                                                                     blank_slot_counter,
-                                                                                    blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value)
+                                                                                    blank_slot_interval, offset, long_category, medium_category)
             ordered_starts.append(starts)
         category.sort(key=lambda x: x[5])
     ordered_competitors = []
@@ -383,14 +334,13 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
 
 
 def draw_start_times(current_window_index, start_windows, list_of_runners, first_open_slot, blank_slot_counter,
-                     blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value):
+                     blank_slot_interval, offset, long_category, medium_category):
     """This function accepts a list of runners, assigns each one a random number, sorts the runners according to
     the random number and assigns them a starting slot based on their order. Periodic vacancies will be inserted in
     order to support some flexibility for the organizers during the event. The long category gets special spacing of two minutes in forest events."""
 
     # Determine the size of the interval required in order to balance the start time allocations around the requested time.
     number_of_runners = len(list_of_runners)
-    best_list_of_runners = []
     if long_category:
         additional_space = 2
     elif medium_category:
@@ -418,55 +368,35 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
         next_open_slot = max(first_open_slot, first_start_if_centered_around_requested_time)
     else:
         next_open_slot = first_open_slot
-    # Copy the list of runners into the "best" list
-    for index in range (len(list_of_runners)):
-        best_list_of_runners.append(list_of_runners[index])  # Establish base "best" draw.
-     # Assign each runner a random number.
-    for runner in best_list_of_runners:
+    # Assign each runner a random number.
+    for runner in list_of_runners:
         runner.append(random.SystemRandom().random())
-    best_list_of_runners.sort(key=lambda x: x[9])  # Sort the runners according to the random number assigned to them.
-    base_score = quality_of_draw (best_list_of_runners, consecutive_category_value, consecutive_club_value)  # Establish base quality score
-    print("best draw list contains ", len(best_list_of_runners), "entries")
-    print("and here they are:", best_list_of_runners)
-    print("base score: ", base_score)
-    # Repeat draw and see if we get a better draw with less consecutive runners from the same club and/or category
-    for iter in range(optimization_iterations):
-        for runner in list_of_runners:
-            runner[9] = random.SystemRandom().random()
-        list_of_runners.sort(key=lambda x: x[9])
-        current_score = quality_of_draw(list_of_runners, consecutive_category_value, consecutive_club_value)
-        print("current score: ", current_score)
-        if current_score < base_score:
-            base_score = current_score
-            print('new low score!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: ', base_score)
-            for i in range(len(list_of_runners)):
-                best_list_of_runners[i] = list_of_runners[i]
-    print("\nThe winning list:\n", best_list_of_runners,"\n")
+    list_of_runners.sort(key=lambda x: x[9])  # Sort the runners according to the random number assigned to them.
     if current_window_index == 0:  # First starting window - no balancing can be performed.
         next_open_slot = start_windows[0]
     elif current_window_index == len(start_windows) - 1:  # Last starting window - no balancing can be performed.
         earliest_needed_start_time = (datetime.datetime.combine(datetime.date.today(), start_windows[-1]) -
-                                      datetime.timedelta(minutes=len(best_list_of_runners))).time()
+                                      datetime.timedelta(minutes=len(list_of_runners))).time()
         if earliest_needed_start_time < first_open_slot:
             next_open_slot = first_open_slot
         else:
             next_open_slot = earliest_needed_start_time
     offset = 0
     # blank_slot_counter = 1
-    for runner in best_list_of_runners:
+    for runner in list_of_runners:
         if blank_slot_counter % blank_slot_interval == 0:
             offset += 1
             # next_open_slot = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
             #                   datetime.timedelta(minutes=1)).time()
         runner[5] = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
-                     datetime.timedelta(minutes=best_list_of_runners.index(runner) * (1 + additional_space) + offset)).time()
+                     datetime.timedelta(minutes=list_of_runners.index(runner) * (1 + additional_space) + offset)).time()
         blank_slot_counter += 1
         if long_category:
             print ("***************************")
             print ("next time: " + str (runner[5]))
     next_open_slot = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
-                      datetime.timedelta(minutes=len(best_list_of_runners) * (1 + additional_space) + offset)).time()
-    return best_list_of_runners, next_open_slot, blank_slot_counter, offset
+                      datetime.timedelta(minutes=len(list_of_runners) * (1 + additional_space) + offset)).time()
+    return list_of_runners, next_open_slot, blank_slot_counter, offset
 
 
 def write_start_file(competitors_list, working_dir):
@@ -665,7 +595,7 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
         category_fields = ['D12S D14S H12S H14S', 'D16S D18S H16S H18S נוער', 'H21S D-OpenS H-OpenS', 'D21S H35S H40S H45S', 'D35S D40S D45S D50S H50S H55S', 'D55S D60S D65S D75S H60S H65S H70S H75S H80S H85S H90S']
         
     male_color_palette = ['dd6727', 'd78644', '6088e1', 'd7ebf2', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '9fcddc', '09679b', '402eee', 'ffff00']
-    femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff44ff', 'ff81c9', 'ff00be', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747', 'ffff00']
+    femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff86d4', 'ff81c9', 'ff7cbe', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747', 'ffff00']
     age_scale = [12, 14, 16, 18, 21, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
         
     
@@ -784,7 +714,7 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
             competitor_start_time = datetime.datetime.combine(datetime.date.min, competitor[5]) - datetime.datetime.min
             if competitor[0] != "kids" and competitor[0] != "undefined":
                 if competitor_start_time == ws.cell(row = index + 4, column = 1).value:
-#                    print (competitor[0], competitor[5])
+                    print (competitor[0], competitor[5])
                     name = competitor[2]
                     comp_class = str(competitor[4])
                     try:
@@ -792,7 +722,7 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
                         index_of_color = age_scale.index(age)
                     except:
                         index_of_color = 17
-#                    print ('index of color: ' + str(index_of_color))
+                    print ('index of color: ' + str(index_of_color))
                     if str(competitor[4])[0] == 'D':
                         pallette = femmale_color_palette
                     else:

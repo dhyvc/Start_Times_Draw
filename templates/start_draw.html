@@ -15,6 +15,9 @@
       <p>Please enter the following information:</p>
       <ol>
       	<li>Sprint or Forrest Event</li>
+      	<li>Number of iterations</li>
+      	<li>Weight of consecutive runners from the same club</li>
+      	<li>Weight of consecutive runners from the same category</li>
       	<li>First Start Time</li>
       	<li>Last Start Time</li>
         <li>Start Time Window Size</li>
@@ -22,7 +25,7 @@
       	<li>The Event Excel File</li>
       </ol>
       <br/>
-      <strong>Please review the Excel file downloaded from the IOA site and fix any problems (wrong course, etc.) before loading the file here.</strong>
+      <strong>Please review the Excel file downloaded from the IOA site and fix any problems (wrong/missing course, etc.) before loading the file here.</strong>
       <br/>
       <br/>
     </div>
@@ -48,8 +51,58 @@
 </div>
         
         
+<div class="row">
+  <div class="col">
+  <b>The draw will iterate as many times as specified below in order to find a relatively "good" draw.
+  A "good" draw will minimize the occurences of consecutive runners being from the same club, or category.
+  The prioritization will be according to the weights given below. Running more iterations will likely
+  give better results, but will take longer to perform. Please note that there is no guarantee for an
+  optimal solution even if there is one.</b>
+    <br/>
+  </div>
+</div>
+        
+
+
+<div class="row">
+  <div class="col">
+    <br/>
+  </div>
+</div>
+        
+        
         
   <div class="row justify-content-start">
+  
+    <div class="col-3">
+      <label for="iterations">Number of iterations:</label>
+    </div>
+    <div class="col-xxl-1 col-sm-2">
+      <input type="number" value="500" step="100" min="100" max="1000" class="form-control" id="iterations" name="iterations">
+    </div>
+    <div class="w-100"></div>
+   <div class="col-3">
+      <label for="same_club_weight">Weight of consecutive runners from same club:</label>
+    </div>
+    <div class="col-xxl-1 col-sm-2">
+      <input type="number" value="10" step="10" min="10" max="100" class="form-control" id="same_club_weight" name="same_club_weight">
+    </div>
+    <div class="w-100"></div>
+   <div class="col-3">
+      <label for="same_category_weight">Weight of consecutive runners from same category:</label>
+    </div>
+    <div class="col-xxl-1 col-sm-2">
+      <input type="number" value="100" step="10" min="10" max="100" class="form-control" id="same_category_weight" name="same_category_weight">
+    </div>
+    <div class="w-100"></div>
+
+<div class="row">
+  <div class="col">
+    <br/>
+  </div>
+</div>
+        
+        
     <div class="col-xxl-1 col-sm-2" >
       <label for="first_start">First Start:</label>
     </div>

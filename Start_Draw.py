@@ -22,6 +22,21 @@ def index():
 			flash('Missing Event Type!')
 			return redirect(request.url)
 
+		iterations = request.form.get("iterations")
+		if iterations is None or iterations == "":
+			flash('Missing Iterations!')
+			return redirect(request.url)
+
+		same_club_weight = request.form.get("same_club_weight")
+		if same_club_weight is None or same_club_weight == "":
+			flash('Missing Club Weight!')
+			return redirect(request.url)
+
+		same_category_weight = request.form.get("same_category_weight")
+		if same_category_weight is None or same_category_weight == "":
+			flash('Missing Category Weight!')
+			return redirect(request.url)
+
 		first_start = request.form.get("first_start")
 		if first_start is None or first_start == "":
 			flash('Missing First Start Time!')
@@ -50,6 +65,9 @@ def index():
 		ls = datetime.datetime.strptime(last_start, dt_format).time()
 		sw = int(start_window)
 		vs = int(vacant_slot)
+		oi = int(iterations)
+		ccl = int(same_club_weight)
+		cca = int(same_category_weight)
 		# print(sw)
 		# sw = datetime.datetime.strptime(start_window, dt_format).time()
 
@@ -63,7 +81,7 @@ def index():
 
 		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], event_file.filename)
 
-		comp_list = my_main.read_start_file(event_file_path, fs, ls, sw, vs, et)
+		comp_list = my_main.read_start_file(event_file_path, fs, ls, sw, vs, et, oi, ccl, cca)
 
 		my_main.write_start_file(comp_list, "./downloads/")
 		my_main.write_undefined_registrations(comp_list, "./downloads/")
