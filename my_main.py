@@ -658,7 +658,7 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     if event_type == 'option2':
         course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
     
-        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D65B D70 D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70 +קצר', 'D21C D40 D45 D50 D55 D60 D65A', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70 +קצר', 'D21C D40 D45 D50 D55 D60 D65', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
     else:
         course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4']
     
