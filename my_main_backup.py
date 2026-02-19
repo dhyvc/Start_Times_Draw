@@ -24,7 +24,6 @@ medium_youth_categories = ['D16A', 'D18B', 'H16A', 'H18B']
 medium_A_categories = ['H50A', 'H55', 'H60A']
 medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
 medium_plus_categories = ['D21A', 'H18A', 'H21B', 'H40']
-# medium_plus_elite_categories = ['D21A', 'H18A']
 long_categories = ['H21A', 'H35A']
 max_member_id = 15000
 min_external_id = 20000
@@ -383,7 +382,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         ordered_starts = []
         # Cycle through the starting slots and randomly draw the starting order for each starting slot.
         # Add course to the stats categories list
-        Stats_Courses.append([category[0][0],[],[],[],[],[]])
+        Stats_Courses.append([category[0][0],[],[],[],[]])
         for p in range(len(periods)):
 #            print ('course name: ' + category[0][0])
             print ('course size: ' + str(len(category)))
@@ -526,9 +525,8 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     Stats_Courses[-1][2].append(Stat_Current_Mean)
     Stats_Courses[-1][3].append(Stat_Current_Max)
     Stats_Courses[-1][4].append(name_of_victim)
-    Stats_Courses[-1][5].append(len(best_list_of_runners))
     if Stats_Courses[-1][0] == "Adults4":
-        print ("The stats are: ", Stats_Courses[-1][1][0], Stats_Courses[-1][2][0], Stats_Courses[-1][3][0], Stats_Courses[-1][4][0], Stats_Courses[-1][5][0])
+        print ("The stats are: ", Stats_Courses[-1][1][0], Stats_Courses[-1][2][0], Stats_Courses[-1][3][0], Stats_Courses[-1][4][0])
     
     next_open_slot = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
                       datetime.timedelta(minutes=len(best_list_of_runners) * (1 + additional_space) + offset)).time()
@@ -982,8 +980,8 @@ def write_course_stats (stats_list, working_dir, event_type):
                 # print ("current index: ", index)
                 # print ("current row: ", stats_list.index(course))
                 current_slot = stats_list.index(course)
-                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]) chr(13) + str(stats_list[stats_list.index(course)][5][index]))
-    ws.cell(row = 4, column = len(stats_list) + 2, value = "ממוצע סטייה מהזמן המבוקש" + chr(13) + "סטייה מקסימלית מהמבוקש" + chr(13) + "שם הנווט המקופח"+ chr(13) + "מספר הנרשמים")
+                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]))
+    ws.cell(row = 4, column = len(stats_list) + 2, value = "ממוצע סטייה מהזמן המבוקש" + chr(13) + "סטייה מקסימלית מהמבוקש" + chr(13) + "שם הנווט המקופח")
     wb.save(xlfilename)
 
 

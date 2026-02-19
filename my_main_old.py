@@ -24,7 +24,6 @@ medium_youth_categories = ['D16A', 'D18B', 'H16A', 'H18B']
 medium_A_categories = ['H50A', 'H55', 'H60A']
 medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
 medium_plus_categories = ['D21A', 'H18A', 'H21B', 'H40']
-# medium_plus_elite_categories = ['D21A', 'H18A']
 long_categories = ['H21A', 'H35A']
 max_member_id = 15000
 min_external_id = 20000
@@ -157,30 +156,27 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         undefined_count = 0
     else:
         kids_categories = ['ילדים', 'ילדים זינוק', 'ילדות זינוק', 'קצרצר', 'ילדים לא תחר', 'ילדות לא תחר']
-        shorty_categories = ['D12S', 'H12S']
-        youth_categories = ['נוער', 'D14S', 'D16S', 'H14S', 'H16S', ]
-        adult1_categories = ['H18S', 'H21S', 'D-OpenS', 'H-OpenS']
-        adult2_categories = ['D18S', 'D21S', 'H35S', 'H40S', 'H45S']
-        adult3_categories = ['H50S', 'H55S']
-        adult4_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'D55S', 'D60S', 'H60S', 'H65S']
-        adult5_categories = ['D65S', 'D70S', 'D75S', 'D80S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
+        shorty_categories = ['D12S', 'H12S', 'D14S', 'H14S']
+        youth_categories = ['נוער', 'D16S', 'D18S','H16S', 'H18S']
+        adult1_categories = ['H21S', 'D-OpenS', 'H-OpenS']
+        adult2_categories = [ 'D21S', 'H35S', 'H40S', 'H45S']
+        adult3_categories = ['D35S', 'D40S', 'D45S', 'D50S', 'H50S', 'H55S']
+        adult4_categories = ['D55S', 'D60S', 'D65S', 'D70S', 'D75S', 'D80S', 'H60S', 'H65S', 'H70S', 'H75S', 'H80S', 'H85S', 'H90S']
         Shorty = []
         Youth = []
         Adults1 = []
         Adults2 = []
         Adults3 = []
         Adults4 = []
-        Adults5 = []
         Kids = []
         Undefined = []
-        courses = [Shorty, Youth, Adults1, Adults2, Adults3, Adults4, Adults5, Kids, Undefined]
+        courses = [Shorty, Youth, Adults1, Adults2, Adults3, Adults4, Kids, Undefined]
         shorty_count = 0
         youth_count = 0
         adults1_count = 0
         adults2_count = 0
         adults3_count = 0
         adults4_count = 0
-        adults5_count = 0
         kids_count = 0
         undefined_count = 0
 
@@ -313,12 +309,6 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                     Adults4.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                         class_col[row].value, requested_start_time_col[row].value,
                                         start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
-                elif class_col[row].value in adult5_categories:
-                    course = 'Adults5'
-                    adults5_count += 1
-                    Adults5.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
-                                        class_col[row].value, requested_start_time_col[row].value,
-                                        start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
                 elif class_col[row].value in kids_categories:
                     course = 'kids'
                     kids_count += 1
@@ -383,7 +373,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         ordered_starts = []
         # Cycle through the starting slots and randomly draw the starting order for each starting slot.
         # Add course to the stats categories list
-        Stats_Courses.append([category[0][0],[],[],[],[],[]])
+        Stats_Courses.append([category[0][0],[],[],[],[], []])
         for p in range(len(periods)):
 #            print ('course name: ' + category[0][0])
             print ('course size: ' + str(len(category)))
@@ -726,9 +716,9 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     
         category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65  +קצר', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
     else:
-        course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4', 'Adults5']
+        course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4']
     
-        category_fields = ['D12S H12S', 'נוער D14S D16S H14S H16S', 'H18S H21S D-OpenS H-OpenS', 'D18S D21S H35S H40S H45S', 'H50S H55S', 'D35S D40S D45S D50S D55S D60S H60S H65S', 'D65S D70S D75S D80S H70S H75S H80S H85S H90S']
+        category_fields = ['D12S D14S H12S H14S', 'נוער D16S D18S H16S H18S', 'H21S D-OpenS H-OpenS', 'D21S H35S H40S H45S', 'D35S D40S D45S D50S H50S H55S', 'D55S D60S D65S D70S D75S D80S H60S H65S H70S H75S H80S H85S H90S']
         
     male_color_palette = ['dd6727', 'd78644', '6088e1', 'd7ebf2', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '9fcddc', '09679b', '402eee', 'ffff00']
     femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff44ff', 'ff81c9', 'ff00be', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747', 'ffff00']
@@ -885,9 +875,9 @@ def write_course_stats (stats_list, working_dir, event_type):
     
         category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65  +קצר', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
     else:
-        course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4', 'Adults5']
+        course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4']
     
-        category_fields = ['D12S H12S', 'נוער D14S D16S H14S H16S', 'H18S H21S D-OpenS H-OpenS', 'D18S D21S H35S H40S H45S', 'H50S H55S', 'D35S D40S D45S D50S D55S D60S H60S H65S', 'D65S D70S D75S D80S H70S H75S H80S H85S H90S']
+        category_fields = ['D12S D14S H12S H14S', 'נוער D16S D18S H16S H18S', 'H21S D-OpenS H-OpenS', 'D21S H35S H40S H45S', 'D35S D40S D45S D50S H50S H55S', 'D55S D60S D65S D70S D75S D80S H60S H65S H70S H75S H80S H85S H90S']
         
     male_color_palette = ['dd6727', 'd78644', '6088e1', 'd7ebf2', '679cde', '5c7ee2', '6aa6dc', '5260e7', '6392df', '5974e4', '78ced6', '75c4d8',  '556ae5', '6eb0db', '9fcddc', '09679b', '402eee', 'ffff00']
     femmale_color_palette = ['ff72a8', 'ff8fe9', 'ff8ade', 'ff44ff', 'ff81c9', 'ff00be', 'ff77b3', 'ff94f4',  'ff6e9e', 'ff6993', 'ff5567',  'ff5f7d', 'ff5a72', 'ff6488', 'ff515d', 'ff4c52', 'ff4747', 'ffff00']
@@ -982,8 +972,8 @@ def write_course_stats (stats_list, working_dir, event_type):
                 # print ("current index: ", index)
                 # print ("current row: ", stats_list.index(course))
                 current_slot = stats_list.index(course)
-                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]) chr(13) + str(stats_list[stats_list.index(course)][5][index]))
-    ws.cell(row = 4, column = len(stats_list) + 2, value = "ממוצע סטייה מהזמן המבוקש" + chr(13) + "סטייה מקסימלית מהמבוקש" + chr(13) + "שם הנווט המקופח"+ chr(13) + "מספר הנרשמים")
+                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]) + chr(13) + str(stats_list[stats_list.index(course)][5][index]))
+    ws.cell(row = 4, column = len(stats_list) + 2, value = "ממוצע סטייה מהזמן המבוקש" + chr(13) + "סטייה מקסימלית מהמבוקש" + chr(13) + "שם הנווט המקופח" + chr(13) + "מספר הנרשמים")
     wb.save(xlfilename)
 
 
