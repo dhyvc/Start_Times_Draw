@@ -982,7 +982,7 @@ def write_course_stats (stats_list, working_dir, event_type):
                 # print ("current index: ", index)
                 # print ("current row: ", stats_list.index(course))
                 current_slot = stats_list.index(course)
-                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]) chr(13) + str(stats_list[stats_list.index(course)][5][index]))
+                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]) + chr(13) + str(stats_list[stats_list.index(course)][5][index]))
     ws.cell(row = 4, column = len(stats_list) + 2, value = "ממוצע סטייה מהזמן המבוקש" + chr(13) + "סטייה מקסימלית מהמבוקש" + chr(13) + "שם הנווט המקופח"+ chr(13) + "מספר הנרשמים")
     wb.save(xlfilename)
 
