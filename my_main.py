@@ -383,7 +383,13 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         ordered_starts = []
         # Cycle through the starting slots and randomly draw the starting order for each starting slot.
         # Add course to the stats categories list
-        Stats_Courses.append([category[0][0],[],[],[],[],[]])
+        print ("category list: ", courses[0][0])
+        print ("current category: ", category)
+        print ("stats courses list: ",Stats_Courses)
+        try:
+            Stats_Courses.append([category[0][0],[],[],[],[],[]])
+        except IndexError:
+            print ("found the error###############")
         for p in range(len(periods)):
 #            print ('course name: ' + category[0][0])
             print ('course size: ' + str(len(category)))
