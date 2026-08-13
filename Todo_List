@@ -1,0 +1,11 @@
+1.  Modify StartDraw to include fields "course type" and "elite starting offset"
+
+For the medp course:
+
+2.  Establish the time window for start of elite slots.
+3.  Determine spacing for elite starts according to the course type.
+4.  Determine when the elite slots end.
+5.  Move all regular competitors that requested slots inside the elite frame to slots after the elite starts.
+6.  Separate D from H runners.
+7.  Draw start times for D.
+8.  Draw start times for H.

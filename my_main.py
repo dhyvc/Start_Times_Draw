@@ -25,10 +25,15 @@ medium_A_categories = ['H50A', 'H55', 'H60A']
 medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
 medium_plus_categories = ['H21B', 'H40']
 medium_plus_elite_categories = ['D21A', 'H18A']
+medium_plus_elite_female_categories = ['D21A']
+medium_plus_elite_male_categories = ['H18A']
 long_categories = ['H21A', 'H35A']
 max_member_id = 15000
 min_external_id = 20000
 blank_slot_interval_minutes = 10
+elite_slot_starting_offset_in_minutes = 75
+elite_middle_starting_interval = 2
+elite_long_starting_interval = 3
 # consecutive_club_value = 1
 # consecutive_category_value = 10
 # optimization_iterations = 50
@@ -79,6 +84,20 @@ def getperiods(competitors, first, last, period):
         current_time = current_time.replace(hour=hours, minute=minutes)
     return periods, competitors
 
+def get_elite_first_start(first_start, elite_slot_offset_in_minutes):
+    """This function calculates the start time of the elite runners based
+    on the first start and the elite window offset. The function
+    returns the calculated time for the first elite start."""
+    elite_first_start = first_start
+    new_minutes = (first_start.minute + int(elite_slot_offset_in_minutes)) % 60
+    add_minutes = first_start.minute + int(elite_slot_offset_in_minutes)
+    if (add_minutes > 59):
+        new_hours = first_start.hour + add_minutes//60
+    else:
+        new_hours = first_start.hour
+    elite_first_start = elite_first_start.replace(hour=new_hours, minute=new_minutes)
+    return elite_first_start
+
 def quality_of_draw(runner_list, consecutive_category_value, consecutive_club_value):
     """This function calculates a score for a given draw based on consecutive
     runners from the same category and/or same club"""
@@ -102,10 +121,20 @@ def quality_of_draw(runner_list, consecutive_category_value, consecutive_club_va
     return score
 
 
-def read_start_file(filename, first, last, window_size, blank_slot_interval, event_type, optimization_iterations, consecutive_club_value, consecutive_category_value):
+def read_start_file(filename, first, last, elite_slot_starting_offset_in_minutes, window_size, blank_slot_interval, event_type, course_type, optimization_iterations, consecutive_club_value, consecutive_category_value):
     """This function reads the startlist.xlsx file with the time allocation requests and returns data structures
     containing the relevant information for processing."""
     print('The input file name is: ' + filename)
+    print('The first slot is: ', first)
+    print('The last slot is: ' , last)
+    print('The elite_slot_starting_offset_in_minutes is: ' + elite_slot_starting_offset_in_minutes)
+    print('The window size is: ' , window_size)
+    print('The blank slot interval is: ' , blank_slot_interval)
+    print('The event type is: ' , event_type)
+    print('The course type is: ' , course_type)
+    print('The optimization_iterations is: ' , optimization_iterations)
+    print('The consecutive_club_value is: ' , consecutive_club_value)
+    print('The consecutive_category_value is: ' , consecutive_category_value)
     wb = openpyxl.load_workbook(filename)
     sheet = wb.active
     stno_col = sheet["A"]
@@ -129,6 +158,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         medium_A_categories = ['H50A', 'H55', 'H60A']
         medium_B_categories = ['D18A', 'D21B', 'D35', 'H21C', 'H35B', 'H45']
         medium_plus_categories = ['D21A', 'H18A', 'H21B', 'H40']
+        medium_plus_elite_categories = ['D21A', 'H18A']
         long_categories = ['H21A', 'H35A']
         Shorty = []
         Short = []
@@ -139,6 +169,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         Medium_A = []
         Medium_B = []
         Medium_plus = []
+        Medium_plus_elite = []
         Long = []
         Kids = []
         Undefined = []
@@ -149,6 +180,7 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         short_plus_men_count = 0
         short_plus_women_count = 0
         medium_plus_count = 0
+        medium_plus_elite_count = 0
         medium_A_count = 0
         medium_B_count = 0
         medium_youth_count = 0
@@ -246,6 +278,12 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
                     Medium_plus.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
                                         class_col[row].value, requested_start_time_col[row].value,
                                         start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
+                    if class_col[row].value in medium_plus_elite_categories:
+                        course = 'Medium_Plus'
+                        medium_plus_elite_count += 1
+                        Medium_plus_elite.append([course, stno_col[row].value, name_col[row].value, club_col[row].value,
+                                            class_col[row].value, requested_start_time_col[row].value,
+                                            start_time_col[row].value, card_number_col[row].value, phone_col[row].value])
                 elif class_col[row].value in long_categories:
                     course = 'Long'
                     long_count += 1
@@ -350,71 +388,224 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         # If the current course is long, then mark it as both long and medium so there will be two minutes added between starts.
         if (event_type == 'option2') and (category == Long):
             print ("long category found")
-            long_category, medium_category = True, False
+            additional_space = 2
+            # long_category, medium_category = True, False
         # If the course is either medium youth, short, or medium plus, mark it as meduim category only for only 1 min added between starts.
         elif  (event_type == 'option2') and ((category == Medium_youth) or (category == Medium_plus) or (category == Short) or (category == Shorty)):
             print ("medium category found")
-            long_category, medium_category = False, True
+            additional_space = 1
+            # long_category, medium_category = False, True
         else:
-            long_category, medium_category = False, False
+            additional_space = 0
+            # long_category, medium_category = False, False
         # Sort the course according to the requested starting time parameter.
         category.sort(key=lambda x: x[5])
+        if (event_type == 'option2') and (category == Medium_plus):
+            print ("Med plus category: ", category)
+            print ("Med plus elite category: ", Medium_plus_elite)
         # Retrieve both the starting slots list and the competitors list from the file downloaded from the ISOA site.
         periods, competitors = getperiods(competitors, first, last, window_size)
-        # Assign runners to each time slot for the current course according to their requested starting time.
-        runners_per_period = []
-        for item in periods:
-            runners_per_period.append([])
-        for runner in category:
-            for p in range(len(periods) - 1):
-                if runner[5] <= periods[0]:
-                    runners_per_period[0].append(runner)
-                    break
-                elif runner[5] >= periods[-1]:
-                    runners_per_period[-1].append(runner)
-                    break
-                elif (runner[5] >= periods[p]) and (runner[5] < periods[p + 1]):
-                    runners_per_period[p].append(runner)
-                    break
-            else:
-                print("Error: Missing starting time.")
-        # Establish the next possible starting time for the current course.
-        next_vacant_slot = periods[0]
-        ordered_starts = []
-        # Cycle through the starting slots and randomly draw the starting order for each starting slot.
-        # Add course to the stats categories list
-        Stats_Courses.append([category[0][0],[],[],[],[],[]])
-        for p in range(len(periods)):
-#            print ('course name: ' + category[0][0])
-            print ('course size: ' + str(len(category)))
-            starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
-                                                                                    next_vacant_slot,
-                                                                                    blank_slot_counter,
-                                                                                    blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value)
-            ordered_starts.append(starts)
-        category.sort(key=lambda x: x[5])
-    ordered_competitors = []
-    
-    print ("The stat for the draw: ")
-    print (Stats_Courses)
-    
-    write_course_stats(Stats_Courses, "./downloads/", event_type)
-    for elements in range(len(Stats_Courses)):
-        Stats_Courses.pop()
 
-    
-    
-    for cat in courses:
-        for runner in cat:
-            ordered_competitors.append(runner)
+
+        # Handle the elite runners in the medium plus course.
+        if (event_type == 'option2') and (category == Medium_plus):
+            if course_type == 'option1':
+                spacing = 2
+            else:
+                spacing = 3
+            first_elite_start = get_elite_first_start(first, elite_slot_starting_offset_in_minutes)
+            print("The elite runners start at: ", first_elite_start)
+            # Separate the Meduim Plus runners into elite and regular runners
+            temp_elite_runners = []
+            temp_elite_female_runners = []
+            temp_elite_male_runners = []
+            temp_regular_runners = []
+            temp_regular_before_elite_runners = []
+            temp_regular_after_elite_runners = []
+            for item in category:
+                temp_regular_runners.append(item)
+            print ("temp regular runners before: ", temp_regular_runners)
+            for item in competitors:
+                if item[4] in medium_plus_elite_categories:
+                    temp_elite_runners.append(item)
+                    temp_regular_runners.remove(item)
+                    if item[4] in medium_plus_elite_female_categories:
+                        temp_elite_female_runners.append(item)
+                    else:
+                        temp_elite_male_runners.append(item)
+            print ("temp regular runners after: ", temp_regular_runners)
+            print ("temp elite runners after: ", temp_elite_runners)
+            print ("temp elite female runners after: ", temp_elite_female_runners)
+            print ("temp elite male runners after: ", temp_elite_male_runners)
+            # Assign elite runners a new requested time in line with elite time slot
+            for item in temp_elite_runners:
+                print("elite start hour: ", first_elite_start.hour)
+                item[5] = datetime.time(first_elite_start.hour, first_elite_start.minute)
+            print ("temp elite runners after time reassignment: ", temp_elite_runners)            
+            print ("temp elite male runners after time reassignment: ", temp_elite_male_runners)            
+            # Split the regular runners into two groups - starts before elite runners and starts after elite runners.
+            for item in temp_regular_runners:
+                if item[5] < first_elite_start:
+                    temp_regular_before_elite_runners.append(item)
+                else:
+                    temp_regular_after_elite_runners.append(item)
+            print("regulars before elites: ", temp_regular_before_elite_runners)
+            print("regulars after elites: ", temp_regular_after_elite_runners)
+            medp_subcategories = [temp_regular_before_elite_runners, temp_elite_female_runners, temp_elite_male_runners, temp_regular_after_elite_runners]
+            # Determine the last start of the elite runners.
+            number_of_elite_runners = len(temp_elite_runners)
+            print("there are this many elite runners: ", number_of_elite_runners)
+            time_frame_for_elite_starts = number_of_elite_runners * spacing
+            print("expected duration of elite starts: ", time_frame_for_elite_starts)
+            last_elite_start_minutes = (first_elite_start.minute + time_frame_for_elite_starts)%60
+            print("last_elite_start_minutes is: ", last_elite_start_minutes)
+            # Hamdle the MedP category starting times according to the subcategories
+            # first handle the early regular runners, then the female elite, then
+            # the male elite and finally the late regular starters.
+            if category:
+                Stats_Courses.append([category[0][0],[],[],[],[],[]])
+                print ("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++stats courses at medp:", Stats_Courses)
+            else:
+                print ("Wrong event type?")
+            for current_subcategory in medp_subcategories:
+                print("Current subcategory: ", current_subcategory)
+                # Assign runners to each time slot for the current course according to their requested starting time.
+                runners_per_period = []
+                match medp_subcategories.index(current_subcategory):
+                    case 0:
+                        additional_space = 0
+                        # long_category, medium_category = False, False
+                    case 1:
+                        if spacing == 2:
+                            additional_space = 1
+                            # long_category, medium_category = False, True
+                        else:
+                            additional_space = 2
+                            # long_category, medium_category = True, False
+                    case 2:
+                        if spacing == 2:
+                            additional_space = 1
+                            # long_category, medium_category = False, True
+                        else:
+                            additional_space = 2
+                            # long_category, medium_category = True, False
+                    case 3:
+                        additional_space = 0
+                        # long_category, medium_category = False, False
+                    case _:
+                        additional_space = 0
+                        # long_category, medium_category = False, False
+                        
+                for item in periods:
+                    runners_per_period.append([])
+                for runner in current_subcategory:
+                    for p in range(len(periods) - 1):
+                        # print("now serving ", p, periods[p])
+                        if runner[5] <= periods[0]:
+                            runners_per_period[0].append(runner)
+                            break
+                        elif runner[5] >= periods[-1]:
+                            runners_per_period[-1].append(runner)
+                            break
+                        elif (runner[5] >= periods[p]) and (runner[5] < periods[p + 1]):
+                            runners_per_period[p].append(runner)
+                            break
+                        elif not runner[5]:
+                            print("Error: Missing starting time.", runner[2], runner[5])
+                    # if runner[0] in medium_plus_elite_female_categories:
+                    #     print("temp elite female runners after: ", temp_elite_female_runners)
+                # Establish the next possible starting time for the current course.
+                next_vacant_slot = periods[0]
+                ordered_starts = []
+                print ("Runners per period list for ", medp_subcategories.index(current_subcategory), "is: ", runners_per_period)
+                for p in range(len(periods)):
+        #            print ('course name: ' + category[0][0])
+                    print ('subcategory size: ' + str(len(current_subcategory)))
+                    starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
+                                                                                            next_vacant_slot,
+                                                                                            blank_slot_counter,
+                                                                                            blank_slot_interval, offset, additional_space, optimization_iterations, consecutive_club_value, consecutive_category_value)
+                    # starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
+                    #                                                                         next_vacant_slot,
+                    #                                                                         blank_slot_counter,
+                    #                                                                         blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value)
+                    if (p == len(periods)-4) & (current_subcategory == temp_elite_female_runners):
+                        print ("Starts: ", starts)
+                        print ("Starts so far: ", ordered_starts)
+                        # print (runner [-100])
+                    ordered_starts.append(starts)
+                
+        else:
+            # Assign runners to each time slot for the current course according to their requested starting time.
+            runners_per_period = []
+            for item in periods:
+                runners_per_period.append([])
+            for runner in category:
+                # If the requested time is outside the event starting window, then include the runner in the nearest slot at the end of the window.
+                # Otherwise, add the runner to the group belonging to the relevant slot.
+                for p in range(len(periods) - 1):
+                    # print("now serving ", p, periods[p])
+                    if runner[5] <= periods[0]:
+                        runners_per_period[0].append(runner)
+                        break
+                    elif runner[5] >= periods[-1]:
+                        runners_per_period[-1].append(runner)
+                        break
+                    elif (runner[5] >= periods[p]) and (runner[5] < periods[p + 1]):
+                        runners_per_period[p].append(runner)
+                        break
+                    elif not runner[5]:
+                        print("Error: Missing starting time.", runner[2], runner[5])
+            # Establish the next possible starting time for the current course.
+            next_vacant_slot = periods[0]
+            ordered_starts = []
+            # Cycle through the starting slots and randomly draw the starting order for each starting slot.
+            # Add course to the stats categories list
+            print ("the category is: ", category)
+            if category:
+                Stats_Courses.append([category[0][0],[],[],[],[],[]])
+            else:
+                print ("Wrong event type?")
+            for p in range(len(periods)):
+    #            print ('course name: ' + category[0][0])
+                print ('course size: ' + str(len(category)))
+                starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
+                                                                                        next_vacant_slot,
+                                                                                        blank_slot_counter,
+                                                                                        blank_slot_interval, offset, additional_space, optimization_iterations, consecutive_club_value, consecutive_category_value)
+                # starts, next_vacant_slot, blank_slot_counter, offset = draw_start_times(p, periods, runners_per_period[p],
+                #                                                                         next_vacant_slot,
+                #                                                                         blank_slot_counter,
+                #                                                                         blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value)
+                ordered_starts.append(starts)
+            category.sort(key=lambda x: x[5])
+        ordered_competitors = []
+        
+        print ("The stat for the draw: ")
+        print (Stats_Courses)
+        
+        write_course_stats(Stats_Courses, "./downloads/", event_type)
+        for elements in range(len(Stats_Courses)):
+            Stats_Courses.pop()
+
+        
+        
+        for cat in courses:
+            for runner in cat:
+                ordered_competitors.append(runner)
     return ordered_competitors
 
 
 def draw_start_times(current_window_index, start_windows, list_of_runners, first_open_slot, blank_slot_counter,
-                     blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value):
+                     blank_slot_interval, offset, additional_space, optimization_iterations, consecutive_club_value, consecutive_category_value):
+# def draw_start_times(current_window_index, start_windows, list_of_runners, first_open_slot, blank_slot_counter,
+#                      blank_slot_interval, offset, long_category, medium_category, optimization_iterations, consecutive_club_value, consecutive_category_value):
     """This function accepts a list of runners, assigns each one a random number, sorts the runners according to
-    the random number and assigns them a starting slot based on their order. Periodic vacancies will be inserted in
-    order to support some flexibility for the organizers during the event. The long category gets special spacing of two minutes in forest events."""
+    the random number and assigns them a starting slot based on their order. The drawing is performed multiple times according to a user specified parameter
+    in order to optimize the drawing such that the drawing will include less occurences of consecutive runners from the same category and the same club. The
+    weights of each type of occurences are a user defined parameter. Administrative spaces will be inserted every user defined period, in
+    order to support some flexibility for the organizers during the event. The national team categories get additional spacing according to the type of 
+    event and the length of the course."""
     
     # Prepare stats variables
     
@@ -424,20 +615,21 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     name_of_victim = ""
     
     print("The current window is: ", start_windows[current_window_index])
+    print("The stats list is: ", Stats_Courses)
     print("The course is: ", Stats_Courses[-1][0])
 
     # Determine the size of the interval required in order to balance the start time allocations around the requested time.
     number_of_runners = len(list_of_runners)
     best_list_of_runners = []
-    if long_category:
-        additional_space = 2
-    elif medium_category:
-        additional_space = 1
-    else:
-        additional_space = 0
+    # if long_category:
+    #     additional_space = 2
+    # elif medium_category:
+    #     additional_space = 1
+    # else:
+    #     additional_space = 0
     balancing_offset = (1 + additional_space) * number_of_runners // 2
-    if long_category:
-        print ("balancing offset = " + str(balancing_offset))
+    # if long_category:
+    #     print ("balancing offset = " + str(balancing_offset))
     # Establish the desired earliest time slot required for a balanced allocation.
     if start_windows[current_window_index].minute - balancing_offset < 0:
         balanced_first_start_hours = start_windows[current_window_index].hour - 1
@@ -499,9 +691,9 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
         runner[5] = (datetime.datetime.combine(datetime.date.today(), next_open_slot) +
                      datetime.timedelta(minutes=best_list_of_runners.index(runner) * (1 + additional_space) + offset)).time()
         blank_slot_counter += 1
-        if long_category:
-            print ("***************************")
-            print ("next time: " + str (runner[5]))
+        # if long_category:
+        #     print ("***************************")
+        #     print ("next time: " + str (runner[5]))
 #        print ("Type of runner[5] is: ", type(runner[5]))
 #        print ("Type of start window is: ", type(start_windows[current_window_index]))
         distance_from_requested_time = abs((datetime.datetime.combine(datetime.date.today(), runner[5]) - datetime.datetime.combine(datetime.date.today(), start_windows[current_window_index]))).seconds/60

@@ -22,6 +22,11 @@ def index():
 			flash('Missing Event Type!')
 			return redirect(request.url)
 
+		course_type = request.form.get("course_type")
+		if course_type is None or course_type == "":
+			flash('Missing Course Type!')
+			return redirect(request.url)
+
 		iterations = request.form.get("iterations")
 		if iterations is None or iterations == "":
 			flash('Missing Iterations!')
@@ -52,6 +57,11 @@ def index():
 			flash('Missing Start Window Size!')
 			return redirect(request.url)
 
+		elite_start_window_offset = request.form.get("elite_start_window_offset")
+		if elite_start_window_offset is None or elite_start_window_offset == "":
+			flash('Missing Elite Start Window Offset!')
+			return redirect(request.url)
+
 		vacant_slot = request.form.get("vacant_slot")
 		if vacant_slot is None or vacant_slot == "":
 			flash('Missing Vacant Slot Interval!')
@@ -59,11 +69,13 @@ def index():
 
 		event_file = request.files["event_file"]
 		et = event_type
+		ct = course_type
 		print ("event type: " + event_type)
 		dt_format = "%H:%M"
 		fs = (datetime.datetime.strptime(first_start, dt_format)).time()
 		ls = datetime.datetime.strptime(last_start, dt_format).time()
 		sw = int(start_window)
+		eswo = elite_start_window_offset
 		vs = int(vacant_slot)
 		oi = int(iterations)
 		ccl = int(same_club_weight)
@@ -80,8 +92,14 @@ def index():
 		event_file.save(os.path.join(app.config["IMAGE_UPLOADS"], secure_filename(event_file.filename)))
 
 		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], event_file.filename)
+		
+		comp_list = my_main.read_start_file(event_file_path, fs, ls, eswo, sw, vs, et, ct, oi, ccl, cca)
 
-		comp_list = my_main.read_start_file(event_file_path, fs, ls, sw, vs, et, oi, ccl, cca)
+		# try:
+		# 	comp_list = my_main.read_start_file(event_file_path, fs, ls, eswo, sw, vs, et, ct, oi, ccl, cca)
+		# except:
+		# 	return render_template('error.html')
+			
 
 		my_main.write_start_file(comp_list, "./downloads/")
 		my_main.write_undefined_registrations(comp_list, "./downloads/")

@@ -15,11 +15,13 @@
       <p>Please enter the following information:</p>
       <ol>
       	<li>Sprint or Forest Event</li>
+      	<li>Discipline of Forest Event (Middle/Long)</li>
       	<li>Number of iterations</li>
       	<li>Weight of consecutive runners from the same club</li>
       	<li>Weight of consecutive runners from the same category</li>
       	<li>First Start Time</li>
       	<li>Last Start Time</li>
+      	<li>Elite Runners Start Time Offset in Minutes</li>
         <li>Start Time Window Size</li>
         <li>The Vacant Slot Interval</li>
       	<li>The Event Excel File</li>
@@ -28,6 +30,7 @@
       <strong>Please review the Excel file downloaded from the IOA site and fix any problems (wrong/missing course, etc.) before loading the file here.</strong>
       <br/>
       <br/>
+      Event Type:
     </div>
   </div>
       <br/>
@@ -41,6 +44,23 @@
 <div class="form-check form-check-inline">
   <input class="form-check-input" type="radio" name="event_type" id="Forest" value="option2">
   <label class="form-check-label" for="Forest">Forest</label>
+</div>
+
+
+<div class="row">
+  <div class="col">
+    <br/>
+    <p> Forest Event Discipline:</p>
+  </div>
+</div>
+        
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="course_type" id="Sprint" value="option1" checked>
+  <label class="form-check-label" for="Middle">Middle</label>
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="course_type" id="Forest" value="option2">
+  <label class="form-check-label" for="Long">Long</label>
 </div>
 
 
@@ -124,6 +144,13 @@
     </div>
     <div class="col-xxl-1 col-sm-2">
       <input type="number" value="15" step="15" min="15" max="60" class="form-control" id="start_window" name="start_window">
+    </div>
+    <div class="w-100"></div>
+    <div class="col-3">
+      <label for="elite_start_window_offset">Elite Categories Start Offset:</label>
+    </div>
+    <div class="col-xxl-1 col-sm-2">
+      <input type="number" value="75" step="15" min="0" max="90" class="form-control" id="elite_start_window_offset" name="elite_start_window_offset">
     </div>
     <div class="w-100"></div>
     <div class="col-3">
