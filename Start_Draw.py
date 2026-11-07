@@ -1,6 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, send_file
 from werkzeug.utils import secure_filename
-import my_main
+import app as app_module
 import datetime
 import os
 
@@ -71,34 +71,34 @@ def index():
 		# print(sw)
 		# sw = datetime.datetime.strptime(start_window, dt_format).time()
 
-		# sane = my_main.sanity_check(fs, ls, sw.minute)[3]
+		# sane = app.sanity_check(fs, ls, sw.minute)[3]
 
-		fs, ls, sw, err = my_main.sanity_check(fs, ls, sw)
-		# fs, ls, sw, err = my_main.sanity_check(fs, ls, sw.minute)
+		fs, ls, sw, err = app_module.sanity_check(fs, ls, sw)
+		# fs, ls, sw, err = app.sanity_check(fs, ls, sw.minute)
 		# print(secure_filename(event_file.filename))
 
 		event_file.save(os.path.join(app.config["IMAGE_UPLOADS"], secure_filename(event_file.filename)))
 
 		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], event_file.filename)
 
-		comp_list = my_main.read_start_file(event_file_path, fs, ls, sw, vs, et, oi, ccl, cca)
+		comp_list = app_module.read_start_file(event_file_path, fs, ls, sw, vs, et, oi, ccl, cca)
 
-		my_main.write_start_file(comp_list, "./downloads/")
-		my_main.write_undefined_registrations(comp_list, "./downloads/")
-		my_main.write_html_file_for_website(comp_list, "./downloads/")
-		my_main.write_html_file_by_category(comp_list, "./downloads/")
-		my_main.write_html_file_by_starting_time(comp_list, "./downloads/")
-		my_main.write_vacant_slots_by_course(comp_list, "./downloads/", fs, ls, et)
+		app_module.write_start_file(comp_list, "./downloads/")
+		app_module.write_undefined_registrations(comp_list, "./downloads/")
+		app_module.write_html_file_for_website(comp_list, "./downloads/")
+		app_module.write_html_file_by_category(comp_list, "./downloads/")
+		app_module.write_html_file_by_starting_time(comp_list, "./downloads/")
+		app_module.write_vacant_slots_by_course(comp_list, "./downloads/", fs, ls, et)
 
 		if os.path.isfile("./downloads/StartList.zip"):
 			os.remove("./downloads/StartList.zip")
 			dl_list = os.listdir("./downloads")
-			my_main.make_zip_file('./downloads', dl_list)
+			app_module.make_zip_file('./downloads', dl_list)
 			# return redirect(request.url)
 		else:
 			print ('does not exist')
 			dl_list = os.listdir("./downloads")
-			my_main.make_zip_file('./downloads', dl_list)
+			app_module.make_zip_file('./downloads', dl_list)
 		print(dl_list)
 		return send_file('downloads/StartList.zip', download_name="StartList.zip")
 		# return send_file("./uploads/StartList.xlsx")
