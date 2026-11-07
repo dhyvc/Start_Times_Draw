@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='mystyles.css')}}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -136,12 +137,50 @@
     <div class="w-100"></div>
     <br/>
     <div class="w-100"></div>
+  <!-- SI Card Rental checkbox (toggles the SI rental section below, no separate button) -->
+  <div class="form-check form-check-inline mt-3">
+    <input class="form-check-input" type="checkbox" id="siRental" name="si_rental">
+    <label class="form-check-label" for="siRental">SI Rental</label>
+  </div>
+
+  <!-- SI rental section: appears above the Generate button, toggled by the checkbox.
+       Reuses the event Excel file already uploaded; no separate file input. -->
+  <div id="siBoxesDetailsContainer" style="display:none; padding-top: 1rem; padding-bottom: 1rem; border-top: 1px solid #ddd;">
+    <h4>SI Card Rental</h4>
+    <p>Optionally provide SI card box details to generate SI rental sheets together with the start time draw, using the event Excel file already uploaded.</p>
+    <div class="label" style="padding-bottom: 1rem; padding-top: 1rem;">
+      Enter SI card box details for rental
+    </div>
+    <div id="siBoxesDetails">
+      <div class="siBoxRow" style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="boxIconContainerDiv" style="flex-shrink: 0;">
+          <i class="fa fa-suitcase"></i>
+        </div>
+        <div class="siBoxDetailsContainer" style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1;">
+          <input type="text" class="form-control" name="boxStart[]" placeholder="First SI number" value="" style="flex-grow: 1; white-space: nowrap;" pattern="[0-9]+" title="Enter a number">
+          <input type="text" class="form-control" name="boxEnd[]" placeholder="Last SI number" value="" style="flex-grow: 1; white-space: nowrap;" pattern="[0-9]+" title="Enter a number">
+          <input type="text" class="form-control" name="missingCards[]" placeholder="Missing SI cards (e.g. 2071000, 2071050)" value="" style="flex-grow: 9; white-space: nowrap;" pattern="^$|^[0-9]+( *, *[0-9]+)*$" title="Enter numbers separated by commas or leave empty">
+        </div>
+        <a class="btn-remove" onclick='remove_si_box(this)' style="flex-shrink: 0;"><i class="fa fa-times"></i></a>
+      </div>
+    </div>
+    <div id="newBoxButtonContainerDiv">
+      <a class="underline" onclick='add_si_box()'><i class="fa fa-plus"></i> Add box</a>
+    </div>
+    <div style="padding-bottom: 1rem; padding-top: 1rem;">Additional SI cards for rental</div>
+    <div id="additionalSiCards">
+      <input type="text" class="form-control" id="additionalSiCards" name="additionalSiCards" placeholder="e.g. 2071000-2071005, 2071010" value="" style="flex-grow: 9;" pattern="^$|^[0-9]+(-[0-9]+)?( *, *[0-9]+(-[0-9]+)?)*$" title="Enter numbers or ranges separated by commas (e.g. 2071000-2071005, 2071010) or leave empty">
+    </div>
+  </div>
+  <br/>
+  <br/>
     <div class="col-3">
       <label for="event_file">Please pick the .xlsx event file:</label>
     </div>
     <div class="input-group mb-3">
   <!-- <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon03">Button</button> -->
   <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="form-control" id="event_file" name="event_file">
+  <button class="btn btn-danger" type="button" onclick="validateIsoa(this); return false;" style="margin-left:0.5rem;">Validate ISOA Excel</button>
 </div>
 <!--    <div class="col-2">
       <label for="startlist_file">Select StartList.xlsx File:</label>
@@ -152,12 +191,75 @@
     <div class="w-100"></div> -->
   </div>
   <br/>
-  <br/>
     <input class="btn btn-primary" type="submit" value="Generate Start Time Draw">
   </form>
-  <br/>
-  <br/>
-  <!-- {{ first_start }} {{ last_start }} {{ start_window }} sane {{sane}} event file {{event_file}} -->
-</div>
+  <script>
+    function validateIsoa(btn) {
+      var src = document.getElementById("event_file");
+      if (!src.files || src.files.length === 0) {
+        alert("Please pick an .xlsx event file first.");
+        return;
+      }
+      var formData = new FormData();
+      formData.append("isoa_file", src.files[0]);
+      btn.disabled = true;
+      btn.textContent = "Validating...";
+      fetch("{{ url_for('validate_isoa') }}", {
+        method: "POST",
+        body: formData,
+      })
+      .then(function (response) {
+        if (!response.ok) {
+          return response.json().then(function (err) { throw new Error(err.error || "Validation failed"); });
+        }
+        var cd = response.headers.get("content-disposition") || "";
+        return response.blob().then(function (blob) { return { blob: blob, cd: cd }; });
+      })
+      .then(function (result) {
+        var blob = result.blob;
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        var m = result.cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        var fname = m ? m[1].replace(/['"]/g, "") : "ISOA_Validation.xlsx";
+        if (!fname.toLowerCase().endsWith(".xlsx")) {
+          fname = "ISOA_Validation.xlsx";
+        }
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      })
+      .catch(function (err) {
+        alert("Validation error: " + err);
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = "Validate ISOA Excel";
+      });
+    }
+  </script>
 </body>
+<script>
+  function add_si_box() {
+    var div = document.getElementById("siBoxesDetails");
+    div.insertAdjacentHTML('beforeend', "<div class='siBoxRow' style='display: flex; align-items: center; gap: 0.5rem;'><div class='boxIconContainerDiv' style='flex-shrink: 0;'><i class='fa fa-suitcase'></i></div><div class='siBoxDetailsContainer' style='display: flex; align-items: center; gap: 0.5rem; flex-grow: 1;'><input type='text' class='form-control' name='boxStart[]' placeholder=\"First SI number\" value='' style='flex-grow: 1; white-space: nowrap;' pattern='[0-9]+' title='Enter a number'><input type='text' class='form-control' name='boxEnd[]' placeholder=\"Last SI number\" value='' style='flex-grow: 1; white-space: nowrap;' pattern='[0-9]+' title='Enter a number'><input type='text' class='form-control' name='missingCards[]' placeholder=\"Missing SI cards (e.g. 2071000,2071050)\" value='' style='flex-grow: 9; white-space: nowrap;' pattern='^$|^[0-9]+( *, *[0-9]+)*$' title='Enter numbers separated by commas (spaces allowed)'></div><a class='btn-remove' onclick='remove_si_box(this)' style='flex-shrink: 0;'><i class='fa fa-times'></i></a></div>")
+  }
+  function remove_si_box(elem) {
+    var div = document.getElementById("siBoxesDetails");
+    if(div.children.length>1)  {
+      elem.parentNode.remove();
+    } else{
+      var r = confirm("Without SI box data no automatic SI card allocation will be performed.");
+      if (r == true) {
+        elem.parentNode.remove();
+      }
+    }
+  }
+  document.getElementById("siRental").addEventListener("change", function () {
+    var section = document.getElementById("siBoxesDetailsContainer");
+    section.style.display = this.checked ? "" : "none";
+  });
+</script>
 </html>

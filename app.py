@@ -360,6 +360,8 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
             long_category, medium_category = False, False
         # Sort the course according to the requested starting time parameter.
         category.sort(key=lambda x: x[5])
+        if not category:
+            continue
         # Retrieve both the starting slots list and the competitors list from the file downloaded from the ISOA site.
         periods, competitors = getperiods(competitors, first, last, window_size)
         # Assign runners to each time slot for the current course according to their requested starting time.
@@ -384,7 +386,12 @@ def read_start_file(filename, first, last, window_size, blank_slot_interval, eve
         ordered_starts = []
         # Cycle through the starting slots and randomly draw the starting order for each starting slot.
         # Add course to the stats categories list
-        print ("category list: ", courses[0][0])
+        course_name = ""
+        if courses[0]:
+            course_name = courses[0][0]
+        elif category:
+            course_name = category[0][0]
+        print ("category list: ", course_name)
         print ("current category: ", category)
         print ("stats courses list: ",Stats_Courses)
         try:
@@ -542,8 +549,14 @@ def draw_start_times(current_window_index, start_windows, list_of_runners, first
     return best_list_of_runners, next_open_slot, blank_slot_counter, offset
 
 
-def write_start_file(competitors_list, working_dir):
-    """This function writes out the startlist.csv file with starting times."""
+def write_start_file(competitors_list, working_dir, si_card_map=None):
+    """This function writes out the startlist.csv file with starting times.
+
+    si_card_map: optional dict mapping member_id (STNO) to the allocated SI card
+    number for rental runners. When a runner is a rental (no SI card assigned
+    during registration), the allocated card number is written in the CARD
+    NUMBER column instead of the missing original value.
+    """
     filename = working_dir + "StartList.csv"
     # print("Hello")
     # print("The output file path is:", filename)
@@ -554,15 +567,22 @@ def write_start_file(competitors_list, working_dir):
     external_id = min_external_id
     competitors_list.sort(key=lambda x: x[1])
     for runner in competitors_list:
+        original_stno = runner[1]
         if runner[1] > min_external_id:
             runner[1] = external_id
             external_id += 1
-    # Add a "rental" tag to runners who have no SI assigned to them during registration.
-        if runner[7] is None or runner[7] < 100000:
+        # Add a "rental" tag to runners who have no SI assigned to them during registration.
+        allocated_card = (si_card_map or {}).get(str(original_stno))
+        if allocated_card:
             rental = "rental"
+            card_number = allocated_card
+        elif runner[7] is None or runner[7] < 100000:
+            rental = "rental"
+            card_number = runner[7]
         else:
             rental = ""
-        startlist.append([runner[1], runner[2], runner[3], runner[4], runner[5], runner[7], runner[8], rental])
+            card_number = runner[7]
+        startlist.append([runner[1], runner[2], runner[3], runner[4], runner[5], card_number, runner[8], rental])
     rows = startlist
     # csv.writer(file_in_memory).writerow(fields)
     # csv.writer(file_in_memory).writerows(rows)
@@ -574,7 +594,7 @@ def write_start_file(competitors_list, working_dir):
 # then create it.
         os.makedirs(working_dir )
 
-    with open(filename, 'w', encoding='cp1255') as csvfile:
+    with open(filename, 'w', newline='', encoding='cp1255') as csvfile:
         # creating a csv writer object
         csvwriter = csv.writer(csvfile)
 
@@ -611,7 +631,7 @@ def write_undefined_registrations(competitors_list, working_dir):
     # file_to_download.write(file_in_memory.getvalue().encode())
     # file_in_memory.close()
     # print(file_to_download)
-    with open(filename, 'w', encoding='cp1255') as csvfile:
+    with open(filename, 'w', newline='', encoding='cp1255') as csvfile:
         # creating a csv writer object
         csvwriter = csv.writer(csvfile)
 
@@ -665,7 +685,7 @@ def write_html_file_by_category(input_file, working_dir):
         os.makedirs(working_dir )
 
     start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<meta charset="utf-8">\n<title> \nזמני זינוק \
-           </title>\n</head> <body><h1><u>זמני זינוק</u></h1>\
+           </title>\n<style>.si-rental{font-weight:bold;}</style>\n</head> <body><h1><u>זמני זינוק</u></h1>\
            \n""")
     category = ''
     table_started = False
@@ -676,7 +696,11 @@ def write_html_file_by_category(input_file, working_dir):
             category = runner[4]
             table_started = True
             start_list_file.write("<H1>%s</H1>\n<table><tr><th align='center'>שעה</th><th align='center'>מספר חבר</th><th align='center'>שם</th><th></th><th align='center'>מועדון</th><th></th><th align='center'>SI</th></tr>\n" % category)
-        start_list_file.write("<tr><td>%s</td><td align='center'>%s</td><td style='color: blue'><b>%s</b></td><td></td><td>%s</td><td></td><td align='center' style='color: blue'>%s</td></tr>\n" % (runner[5], runner[1], runner[2], runner[3], runner[7]))
+        si = runner[7]
+        is_rental = True in runner[9:]
+        if is_rental:
+            si = '<span class="si-rental" title="כרטיס שכור">%s</span>' % si
+        start_list_file.write("<tr><td>%s</td><td align='center'>%s</td><td style='color: blue'><b>%s</b></td><td></td><td>%s</td><td></td><td align='center' style='color: blue'>%s</td></tr>\n" % (runner[5], runner[1], runner[2], runner[3], si))
     start_list_file.write("</table>")
     start_list_file.write("</body>\n</html>")
     start_list_file.close()
@@ -686,7 +710,7 @@ def write_html_file_by_starting_time(input_file, working_dir):
     starting_list_by_category = sorted(input_file, key=lambda x: (x[5], x[4]))
     start_list_file = open(working_dir + 'HTML_Start_Times_By_Starting_Time.html', 'w', encoding='utf8')
     start_list_file.write("""<html dir="rtl" lang="he">\n<head>\n<meta charset="utf-8">\n<title> \nרשימת זינוקים \
-           </title>\n</head> <body><h1><u>רשימת זינוקים</u></h1>\
+           </title>\n<style>.si-rental{font-weight:bold;}</style>\n</head> <body><h1><u>רשימת זינוקים</u></h1>\
            \n""")
     time_slot = datetime.time()
     # time_slot = datetime.time(0, 0)
@@ -712,9 +736,13 @@ def write_html_file_by_starting_time(input_file, working_dir):
             table_started = True
             start_list_file.write("<H1>%s</H1>\n<table border='1px'><tr><th></th><th>שם</th><th></th><th>קטגוריה</th"
                                   "><th></th><th>מספר SI</th><th></th><th>טלפון</th><th></th><th width='200px'>הערה</th></tr>\n" % time_slot)
+        si = runner[7]
+        is_rental = True in runner[9:]
+        if is_rental:
+            si = '<span class="si-rental" title="כרטיס שכור">%s</span>' % si
         start_list_file.write("<tr><td><input type='checkbox'></td><td>%s</td><td></td><td>%s</td><td></td><td>%s</td"
                               "><td></td><td>%s</td><td></td><td></td></tr>\n" % (
-                                  runner[2], runner[4], runner[7], runner[8]))
+                                  runner[2], runner[4], si, runner[8]))
     start_list_file.write("</table>")
     start_list_file.write("</body>\n</html>")
     start_list_file.close()
