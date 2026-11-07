@@ -79,7 +79,7 @@ def index():
 
 		event_file.save(os.path.join(app.config["IMAGE_UPLOADS"], secure_filename(event_file.filename)))
 
-		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], event_file.filename)
+		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], secure_filename(event_file.filename))
 
 		comp_list = app_module.read_start_file(event_file_path, fs, ls, sw, vs, et, oi, ccl, cca)
 

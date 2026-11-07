@@ -9,6 +9,7 @@ import datetime
 import random
 import csv
 import os
+from openpyxl.chart import BarChart, Reference
 # from fpdf import FPDF
 from zipfile import ZipFile
 from io import StringIO, BytesIO
@@ -728,9 +729,9 @@ def write_vacant_slots_by_course(input_file, working_dir, first_start, last_star
     sprint_categories_row_height = 80
     
     if event_type == 'option2':
-        course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
+        course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Women', 'Short_Plus_Men', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
     
-        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65  +קצר', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'D21C D40 D45 D50 D55 D60 D65  +קצר', 'H50B H60B H65 H70', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
     else:
         course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4', 'Adults5']
     
@@ -887,9 +888,9 @@ def write_course_stats (stats_list, working_dir, event_type):
     sprint_categories_row_height = 80
     
     if event_type == 'option2':
-        course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Men', 'Short_Plus_Women', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
+        course_fields = ['Shorty', 'Short', 'Gold', 'Short_Plus_Women', 'Short_Plus_Men', 'Medium_Youth', 'Medium_A', 'Medium_B', 'Medium_Plus', 'Long']
     
-        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'H50B H60B H65 H70', 'D21C D40 D45 D50 D55 D60 D65  +קצר', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
+        category_fields = ['D12 D14B H12 H14B', 'D14A D16B H14A H16B קצר', 'D70 D75 D80 H75 H80 H85 H90', 'D21C D40 D45 D50 D55 D60 D65  +קצר', 'H50B H60B H65 H70', 'D16A D18B H16A H18B בינוני', 'H50A H55 H60A', 'D18A D21B D35 H21C H35B H45', 'D21A H18A H21B H40', 'H21A H35A']
     else:
         course_fields = ['Shorty', 'Youth', 'Adults1', 'Adults2', 'Adults3', 'Adults4', 'Adults5']
     
@@ -921,7 +922,7 @@ def write_course_stats (stats_list, working_dir, event_type):
     title_cell = ws.cell(row =1, column = 1)
     title_cell.font = openpyxl.styles.Font(size = 14)
     title_cell.border = thick_red_cell_border_template
-    title_cell.alignment = openpyxl.styles.Alignment(horizontal = 'center')
+    title_cell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
     ws.cell(row = 1, column = 1, value = "סטטיסטיקות על הגרלת הזמנים")
     
     # Set up the additional titles on the page
@@ -929,17 +930,41 @@ def write_course_stats (stats_list, working_dir, event_type):
     ws.cell(row = 2, column = 1).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
     ws.cell(row = 2, column = 1, value = "שעת זינוק מבוקשת")
     
+    # Stat-type header (column B) and course row (columns C+)
+    ws.cell(row = 2, column = 2, value = "מדד")
+    ws.cell(row = 2, column = 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    ws.cell(row = 2, column = 2).border = thin_black_cell_border_template
+    ws.cell(row = 3, column = 2, value = "סוג סטטיסטיקה")
+    ws.cell(row = 3, column = 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center', wrap_text = True)
+    ws.cell(row = 3, column = 2).border = thin_black_cell_border_template
+
     # Fill in the course row
     for index in range(len(course_fields)):
-        ws.cell(row = 2, column=index + 2, value=course_fields[index])
-        ws.cell(row = 2, column=index + 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
-        ws.cell(row = 2, column=index + 2).border = thin_black_cell_border_template
+        ws.cell(row = 2, column=index + 3, value=course_fields[index])
+        ws.cell(row = 2, column=index + 3).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        ws.cell(row = 2, column=index + 3).border = thin_black_cell_border_template
     
     # Fill in the categories row
     for index in range(len(course_fields)):
-        ws.cell(row = 3, column=index + 2, value=category_fields[index])
-        ws.cell(row = 3, column=index + 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center', wrap_text = True)
-        ws.cell(row = 3, column=index + 2).border = thin_black_cell_border_template
+        ws.cell(row = 3, column=index + 3, value=category_fields[index])
+        ws.cell(row = 3, column=index + 3).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center', wrap_text = True)
+        ws.cell(row = 3, column=index + 3).border = thin_black_cell_border_template
+        
+    # Summary columns headers: grand total and cumulative
+    total_col = len(course_fields) + 3
+    cum_col = len(course_fields) + 4
+    ws.cell(row = 2, column = total_col, value = "סה״כ כללי")
+    ws.cell(row = 2, column = total_col).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    ws.cell(row = 2, column = total_col).border = thin_black_cell_border_template
+    ws.cell(row = 3, column = total_col, value = "מספר נרשמים")
+    ws.cell(row = 3, column = total_col).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center', wrap_text = True)
+    ws.cell(row = 3, column = total_col).border = thin_black_cell_border_template
+    ws.cell(row = 2, column = cum_col, value = "סה״כ עד עכשיו")
+    ws.cell(row = 2, column = cum_col).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    ws.cell(row = 2, column = cum_col).border = thin_black_cell_border_template
+    ws.cell(row = 3, column = cum_col, value = "מצטבר עד שעה זו")
+    ws.cell(row = 3, column = cum_col).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center', wrap_text = True)
+    ws.cell(row = 3, column = cum_col).border = thin_black_cell_border_template
         
     # Fix the row height to accomodate the category list
     if event_type == 'option2':
@@ -959,37 +984,176 @@ def write_course_stats (stats_list, working_dir, event_type):
     ws.column_dimensions['A'].width /= 1.5
     
     number_of_rows = len(stats_list[0][1])
-    
-    # Fill the start times column
+
+    # Each requested start time gets one row per stat: col A = time only,
+    # col B = stat label, then one cell per course per stat.
+    stat_rows = 5
+    rows_per_block = stat_rows
+    stat_labels = ['ממוצע סטייה', 'סטייה מקסימלית', 'שם הנווט המקופח', 'אחוז תפוסה', 'סה״כ נרשמים']
+    stat_indices = [2, 3, 4, None, 5]  # mean, max deviation, victim name, (capacity none), registered count
+    # Derive the number of slots per start window from the spacing between consecutive start windows.
+    start_times = stats_list[0][1]
+    SLOTS_PER_START_WINDOW = 15  # fallback default
+    if len(start_times) >= 2:
+        delta_minutes = (datetime.datetime.combine(datetime.date.today(), start_times[1]) -
+                         datetime.datetime.combine(datetime.date.today(), start_times[0])).total_seconds() / 60
+        if delta_minutes > 0:
+            SLOTS_PER_START_WINDOW = int(delta_minutes)
+    first_data_row = 4
+
+    # Precompute per-course totals and grand total (for percentages)
+    valid_courses = []
+    for course_idx, course in enumerate(stats_list):
+        if course[0] != "kids" and course[0] != "undefined":
+            valid_courses.append(course_idx)
+    course_totals = {}
+    grand_total = 0
+    for course_idx in valid_courses:
+        course_totals[course_idx] = sum(int(stats_list[course_idx][5][i]) for i in range(int(number_of_rows)))
+        grand_total += course_totals[course_idx]
+
+    # Fill column A with the requested time (merged across all rows of the block)
+    # and column B with the stat label.
     for index in range (int(number_of_rows)):
         hour = str(stats_list[0][1][index].hour)
         if stats_list[0][1][index].minute == 0:
             minute = "00"
         else:
             minute = str(stats_list[0][1][index].minute)
-        ws.cell(row = index + 4, column = 1, value = hour + ":" + minute)
-        ws.cell(row = index + 4, column = 1).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
-        ws.cell(row = index + 4, column = 1).border = thin_black_cell_border_template
-        
+        time_str = hour + ":" + minute
+        row = first_data_row + index * rows_per_block
+        end_row = row + rows_per_block - 1
+        ws.merge_cells(start_row = row, start_column = 1, end_row = end_row, end_column = 1)
+        time_cell = ws.cell(row = row, column = 1, value = time_str)
+        time_cell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        time_cell.border = thin_black_cell_border_template
+        # apply border to all merged rows in column A and B
+        for s in range(rows_per_block):
+            ws.cell(row = row + s, column = 1).border = thin_black_cell_border_template
+            ws.cell(row = row + s, column = 2).border = thin_black_cell_border_template
+        # stat labels
+        for s in range(stat_rows):
+            ws.cell(row = row + s, column = 2).value = stat_labels[s]
+            ws.cell(row = row + s, column = 2).alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+            ws.cell(row = row + s, column = 2).font = openpyxl.styles.Font(bold = (s == stat_rows - 1))
+            
     # Create borders for all the relevant cells in the worksheet
-#    for line in range(4, len(input_file)+1):
-    for line in range(4, int(number_of_rows) +4):
-        for col in range(2, len(course_fields)+2):
+    last_row = first_data_row + int(number_of_rows) * rows_per_block - 1
+    for line in range(first_data_row, last_row + 1):
+        for col in range(3, cum_col + 1):
             ws.cell(row = line, column = col).border = thin_black_cell_border_template
     
-    # Loop over the requeted starting times and fill the cells with the stats
-    
-#    for index in range (int(number_of_rows) +1):
+    # Bold bottom border to separate each requested time block
     for index in range (int(number_of_rows)):
-        for course in stats_list:
-            if stats_list[stats_list.index(course)][0] != "kids" and stats_list[stats_list.index(course)][0] != "undefined":
-                # print ("current course: ", course)
-                # print ("current column: ", stats_list.index(course) + 2)
-                # print ("current index: ", index)
-                # print ("current row: ", stats_list.index(course))
-                current_slot = stats_list.index(course)
-                ws.cell(row = index + 4, column = stats_list.index(course) + 2, value = str(stats_list[stats_list.index(course)][2][index]) + chr(13) + str(stats_list[stats_list.index(course)][3][index]) + chr(13) + str(stats_list[stats_list.index(course)][4][index]) + chr(13) + str(stats_list[stats_list.index(course)][5][index]))
-    ws.cell(row = 4, column = len(stats_list) + 2, value = "ממוצע סטייה מהזמן המבוקש" + chr(13) + "סטייה מקסימלית מהמבוקש" + chr(13) + "שם הנווט המקופח"+ chr(13) + "מספר הנרשמים")
+        sep_row = first_data_row + index * rows_per_block + rows_per_block - 1
+        for col in range(1, len(course_fields)+5):
+            cell = ws.cell(row = sep_row, column = col)
+            cell.border = openpyxl.styles.Border(
+                bottom = openpyxl.styles.Side(border_style="thick", color="000000"),
+                top = cell.border.top,
+                left = cell.border.left,
+                right = cell.border.right)
+    
+    # Fill the cells: one row per stat per start time
+    cumulative_grand = 0
+    for index in range (int(number_of_rows)):
+        for course_idx, course in enumerate(stats_list):
+            if course[0] != "kids" and course[0] != "undefined":
+                col = course_idx + 3
+                for s in range(stat_rows):
+                    row = first_data_row + index * rows_per_block + s
+                    if stat_indices[s] is not None:
+                        if s == stat_rows - 1:  # "סה״כ נרשמים" row: count + course-level pct
+                            cnt = int(course[stat_indices[s]][index])
+                            ctotal = course_totals[course_idx]
+                            pct = (cnt / ctotal * 100) if ctotal > 0 else 0.0
+                            val = "{} ({}%)".format(cnt, round(pct, 1))
+                        else:
+                            val = str(course[stat_indices[s]][index])
+                    else:
+                        # Capacity percentage row: registered / slots × 100, percentage only
+                        cnt = int(course[5][index])
+                        cap_pct = (cnt / SLOTS_PER_START_WINDOW * 100) if SLOTS_PER_START_WINDOW > 0 else 0.0
+                        val = "{}%".format(round(cap_pct, 1))
+                    stat_cell = ws.cell(row = row, column = col, value = val)
+                    stat_cell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        # Grand total + cumulative columns placed on the last row ("סה״כ נרשמים") of each block
+        srow = first_data_row + index * rows_per_block + (stat_rows - 1)
+        total = 0
+        for ci, course_idx in enumerate(valid_courses):
+            cnt = int(stats_list[course_idx][5][index])
+            total += cnt
+        cumulative_grand += total
+        grand_pct = (total / grand_total * 100) if grand_total > 0 else 0.0
+        tcell = ws.cell(row = srow, column = total_col, value = "{} ({}%)".format(total, round(grand_pct, 1)))
+        tcell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        tcell.border = thin_black_cell_border_template
+        tcell.font = openpyxl.styles.Font(bold = True)
+        cum_grand_pct = (cumulative_grand / grand_total * 100) if grand_total > 0 else 0.0
+        cum_gcell = ws.cell(row = srow, column = cum_col, value = "{} ({}%)".format(cumulative_grand, round(cum_grand_pct, 1)))
+        cum_gcell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        cum_gcell.border = thin_black_cell_border_template
+        cum_gcell.font = openpyxl.styles.Font(bold = True)
+
+    # Final totals row: total registered per course and share of grand total
+    totals_row = last_row + 1
+    total_label = ws.cell(row = totals_row, column = 1, value = "סה״כ")
+    total_label.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    total_label.border = thin_black_cell_border_template
+    total_label.font = openpyxl.styles.Font(bold = True)
+    for ci, course_idx in enumerate(valid_courses):
+        col = course_idx + 3
+        ctotal = course_totals[course_idx]
+        c_pct = (ctotal / grand_total * 100) if grand_total > 0 else 0.0
+        cell = ws.cell(row = totals_row, column = col, value = "{} ({}%)".format(ctotal, round(c_pct, 1)))
+        cell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+        cell.border = thin_black_cell_border_template
+        cell.font = openpyxl.styles.Font(bold = True)
+    grand_tcell = ws.cell(row = totals_row, column = total_col, value = "{} ({}%)".format(grand_total, round(100.0, 1)))
+    grand_tcell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    grand_tcell.border = thin_black_cell_border_template
+    grand_tcell.font = openpyxl.styles.Font(bold = True)
+    cum_grand_tcell = ws.cell(row = totals_row, column = cum_col, value = "{} ({}%)".format(grand_total, round(100.0, 1)))
+    cum_grand_tcell.alignment = openpyxl.styles.Alignment(horizontal = 'center', vertical = 'center')
+    cum_grand_tcell.border = thin_black_cell_border_template
+    cum_grand_tcell.font = openpyxl.styles.Font(bold = True)
+
+    # Bar chart: one series per course (different colors), times on X axis.
+    # Source data lives on a hidden "ChartData" sheet so nothing extra shows on the main sheet.
+    if valid_courses and int(number_of_rows) > 0:
+        cds = wb.create_sheet(title = "ChartData")
+        cds.sheet_state = "hidden"
+        # column A: time labels; columns B..: course counts
+        for ci, course_idx in enumerate(valid_courses):
+            cds.cell(row = 1, column = 2 + ci, value = stats_list[course_idx][0])
+        for index in range (int(number_of_rows)):
+            hour = str(stats_list[0][1][index].hour)
+            if stats_list[0][1][index].minute == 0:
+                minute = "00"
+            else:
+                minute = str(stats_list[0][1][index].minute)
+            cds.cell(row = 2 + index, column = 1, value = hour + ":" + minute)
+            for ci, course_idx in enumerate(valid_courses):
+                cnt = int(stats_list[course_idx][5][index])
+                cds.cell(row = 2 + index, column = 2 + ci, value = cnt)
+
+        chart = BarChart()
+        chart.type = "col"
+        chart.style = 10
+        chart.title = "מספר נרשמים לפי שעה ומסלול"
+        chart.y_axis.title = "מספר נרשמים"
+        chart.x_axis.title = "שעת זינוק"
+        data = Reference(cds, min_col = 2, min_row = 1,
+                         max_col = len(valid_courses) + 1,
+                         max_row = 1 + int(number_of_rows))
+        cats = Reference(cds, min_col = 1, min_row = 2,
+                         max_row = 1 + int(number_of_rows))
+        chart.add_data(data, titles_from_data = True)
+        chart.set_categories(cats)
+        chart.width = 16
+        chart.height = 9
+        ws.add_chart(chart, "A" + str(totals_row + 2))
+
     wb.save(xlfilename)
 
 
