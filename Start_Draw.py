@@ -86,6 +86,9 @@ def index():
 		# fs, ls, sw, err = app.sanity_check(fs, ls, sw.minute)
 		# print(secure_filename(event_file.filename))
 
+		os.makedirs(app.config["IMAGE_UPLOADS"], exist_ok=True)
+		os.makedirs(app.config["IMAGE_DOWNLOADS"], exist_ok=True)
+
 		event_file.save(os.path.join(app.config["IMAGE_UPLOADS"], secure_filename(event_file.filename)))
 
 		event_file_path = os.path.join(app.config["IMAGE_UPLOADS"], secure_filename(event_file.filename))
