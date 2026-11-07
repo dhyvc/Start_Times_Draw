@@ -12,6 +12,9 @@ from competition.registration.adapters.isoa_excel.xlsx import generate_validatio
 from competition.registration.si_rental.validation import validate_si_rental_input
 from competition.registration.si_rental.allocation import allocate_si_cards
 from competition.registration.si_rental.excel import generate_si_rental_excel
+from competition.courses.adapters.iof_xml.reader import read as read_iof_xml
+from competition.courses.adapters.iof_xml.mappers import map_course
+from competition.courses.adapters.iof_xml.writer import write
 
 app = Flask(__name__)
 app.secret_key = '7ff1db0ee6826e68c0ae9abdd8da1966fb7cbdbf5dbe7c77915d4cd10b9e7999'
@@ -177,6 +180,47 @@ def validate_isoa():
 	xlsx_mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 	return send_file(out_path, mimetype=xlsx_mimetype,
 					 as_attachment=True, download_name="ISOA_Validation.xlsx")
+
+
+@app.route('/courses-dat', methods=['POST'])
+def courses_dat():
+	"""Convert an uploaded IOF XML v2/v3 course file into a Mulka2 Course.dat download."""
+	if 'iof_file' not in request.files:
+		return jsonify({"error": "No file part"}), 400
+
+	iof_file = request.files['iof_file']
+	if iof_file.filename == '':
+		return jsonify({"error": "No selected file"}), 400
+
+	filename = secure_filename(iof_file.filename)
+	if not filename.lower().endswith('.xml'):
+		return jsonify({"error": "Invalid file. Only .xml files are allowed."}), 400
+
+	try:
+		raw_courses = read_iof_xml(iof_file)
+	except Exception as exc:  # noqa: BLE001 - surface parse errors to the user
+		return jsonify({"error": "Failed to parse IOF XML: %s" % str(exc)}), 400
+
+	if not raw_courses:
+		return jsonify({"error": "No <Course> elements found in the IOF XML file."}), 400
+
+	rows = []
+	for raw in raw_courses:
+		rows.extend(map_course(raw))
+
+	include_short_name = request.form.get("include_short_name", "true").lower() == "true"
+	punch_at_start = request.form.get("punch_at_start", "true").lower() == "true"
+
+	dat_text = write(rows, include_short_name=include_short_name, punch_at_start=punch_at_start)
+
+	out_path = os.path.join(app.config["IMAGE_DOWNLOADS"], "Course.dat")
+	if not os.path.exists(app.config["IMAGE_DOWNLOADS"]):
+		os.makedirs(app.config["IMAGE_DOWNLOADS"])
+	with open(out_path, "w", encoding="utf-8", newline="") as fh:
+		fh.write(dat_text)
+
+	return send_file(out_path, mimetype="text/csv",
+					 as_attachment=True, download_name="Course.dat")
 
 
 @app.route('/about')

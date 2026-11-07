@@ -193,6 +193,29 @@
   <br/>
     <input class="btn btn-primary" type="submit" value="Generate Start Time Draw">
   </form>
+
+  <!-- IOF XML -> Course.dat section -->
+  <div class="row mt-5">
+    <div class="col">
+      <hr/>
+      <h3>IOF XML → Course.dat (Mulka2)</h3>
+      <p>Upload an IOF XML v2 or v3 course file and download the corresponding
+         <code>Course.dat</code> for Mulka2.</p>
+      <form action="{{ url_for('courses_dat') }}" method="POST" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+          <label class="input-group-text" for="iof_file">IOF XML file:</label>
+          <input type="file" accept=".xml" class="form-control" id="iof_file" name="iof_file" required>
+        </div>
+        <div class="form-check form-check-inline mb-3">
+          <input class="form-check-input" type="checkbox" id="punchAtStart" name="punch_at_start" value="true" checked>
+          <label class="form-check-label" for="punchAtStart">Punch at start control</label>
+        </div>
+        <input type="hidden" name="include_short_name" value="true">
+        <button class="btn btn-success" type="submit">Generate Course.dat</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     function validateIsoa(btn) {
       var src = document.getElementById("event_file");

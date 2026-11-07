@@ -746,7 +746,8 @@ def write_html_file_by_starting_time(input_file, working_dir):
     start_list_file.write("</table>")
     start_list_file.write("</body>\n</html>")
     start_list_file.close()
-    
+
+
 def write_vacant_slots_by_course(input_file, working_dir, first_start, last_start, event_type):
     """This function writes out the Vacancies.xlsx file with vacant starting times."""
     filename = working_dir + "Vacancies.csv"
