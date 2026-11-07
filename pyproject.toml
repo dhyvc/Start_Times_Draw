@@ -1,0 +1,22 @@
+[project]
+name = "start_times_draw"
+version = "0.1.0"
+description = "Orienteering start time draw web application"
+requires-python = ">=3.10"
+dependencies = [
+    "Flask>=2.2.5,<3.0",
+    "openpyxl>=3.1.2,<4.0",
+    "pandas>=2.0.0,<4.0",
+    "xlsxwriter>=3.0.0,<4.0",
+    "gunicorn>=21.2.0,<22.0",
+]
+
+[project.scripts]
+start_draw = "Start_Draw:app"
+
+[dependency-groups]
+dev = ["pytest>=8.0.0,<10.0", "pytest-cov>=5.0.0,<6.0", "flake8>=7.0.0,<8.0"]
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = "E203, W503"

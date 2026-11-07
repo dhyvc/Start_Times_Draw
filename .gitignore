@@ -3,7 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# uv
+.venv/
+
 downloads/
+uploads/
+downloadsStats.xlsx
 # C extensions
 *.so
 
