@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 
 from competition.courses.models import NormalizedCourse
 from competition.courses.adapters.iof_xml.reader import read as read_iof_xml
@@ -341,3 +342,38 @@ def test_iof_v3_end_to_end_writer():
     assert lines[1] == ("Long,Long,2810,0,3,0,31,32,100,F")
     assert lines[2] == ("Short,Short,2050,0,2,0,51,32,,F")
     assert lines[3] == ("With Fun,With Fun,2290,0,2,0,1,2,,F")
+
+
+# ---------------- IOF XML real file: Carmel Gate ----------------
+
+_CARMEL_GATE_LINES = [
+    "Course,Short Name,Length,Climb,Controls,S,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,F",
+    "Long,Long,6020,210,22,0,58,63,33,34,35,36,38,39,40,54,59,41,42,43,55,62,31,64,49,47,46,100,F",
+    "Med Plus,Med Plus,5130,180,19,0,51,33,34,52,36,62,37,59,56,40,69,41,42,71,53,49,47,60,100,,,,F",
+    "Med A,Med A,4130,125,16,0,71,62,37,50,59,44,40,69,41,57,64,33,35,49,46,100,,,,,,,F",
+    "Med B,Med B,4090,130,16,0,57,48,55,37,59,56,40,54,41,43,36,33,52,49,60,100,,,,,,,F",
+    "Med Y,Med Y,3870,110,14,0,53,64,55,62,59,44,69,65,41,71,70,49,60,100,,,,,,,,,F",
+    "Short Plus H,Short Plus H,3260,95,12,0,57,43,31,50,54,70,36,64,45,61,46,100,,,,,,,,,,,F",
+    "Short Plus D,Short Plus D,3060,95,12,0,32,53,64,48,50,54,65,43,70,45,61,100,,,,,,,,,,,F",
+    "Short,Short,2460,80,10,0,57,32,72,31,65,53,70,67,61,100,,,,,,,,,,,,,F",
+    "Shorty,Shorty,1980,55,8,0,73,74,75,76,77,78,79,100,,,,,,,,,,,,,,,F",
+    "Gold,Gold,2150,55,9,0,32,53,81,72,65,76,80,79,100,,,,,,,,,,,,,,F",
+    "Open White Shorty,Open White Shorty,2020,0,8,0,73,81,75,76,77,80,79,100,,,,,,,,,,,,,,,F",
+    "Open Yellow Med,Open Yellow Med,3340,0,12,0,32,74,72,50,69,65,81,70,34,67,61,100,,,,,,,,,,,F",
+    "Open Red Short Plus,Open Red Short Plus,3130,0,13,0,43,53,64,31,50,69,54,65,70,45,47,61,100,,,,,,,,,,F",
+    "Open Blue Med,Open Blue Med,3960,0,15,0,71,55,62,50,44,40,69,41,57,36,33,52,49,61,100,,,,,,,,F",
+    "Family,Family,2270,0,8,0,1,2,3,4,5,6,7,8,,,,,,,,,,,,,,,F",
+]
+_CARMEL_GATE_EXPECTED = "\r\n".join(_CARMEL_GATE_LINES) + "\r\n"
+
+
+def test_iof_carmel_gate_writer_matches_expected_courses_dat():
+    """The Carmel Gate IOF XML must produce Course(1).dat output:
+    Short Name falls back to course name when multiple ClassShortName exist."""
+    fixture = os.path.join(os.path.dirname(__file__), "fixtures", "carmel_gate_courses.xml")
+    raw_courses = read_iof_xml(fixture)
+    rows = []
+    for raw in raw_courses:
+        rows.extend(map_course(raw))
+    text = write(rows, include_short_name=True, punch_at_start=True)
+    assert text == _CARMEL_GATE_EXPECTED

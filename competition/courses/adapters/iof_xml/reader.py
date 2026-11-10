@@ -100,7 +100,12 @@ def _parse_variation(var: ET.Element) -> dict[str, Any]:
 def _parse_course(elem: ET.Element) -> dict[str, Any]:
     """Parse a <Course> element into a raw dict."""
     name = _text(elem, "CourseName") or _text(elem, "Name")
-    short_name = _text(elem, "ClassShortName") or name
+
+    short_name_elems = _children(elem, "ClassShortName")
+    if len(short_name_elems) == 1:
+        short_name = (short_name_elems[0].text or "").strip() or name
+    else:
+        short_name = name
 
     variations = _children(elem, "CourseVariation")
     if not variations:
